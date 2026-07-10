@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#128C7E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="SCI">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <title>SCI · Escola Santa Mônica</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Share+Tech+Mono&display=swap');
@@ -89,10 +96,16 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
 /* TRANSCRIÇÃO */
-.transc-box{background:var(--surface);border:1px solid var(--borda);border-radius:10px;padding:9px 13px;display:none;flex-direction:column;gap:4px;}
+.transc-box{background:var(--surface);border:1px solid var(--borda);border-radius:10px;padding:9px 13px;display:none;flex-direction:column;gap:5px;max-height:220px;}
 .transc-box.vis{display:flex;}
-.transc-lbl{font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);display:flex;align-items:center;gap:5px;}
+.transc-lbl{font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);display:flex;align-items:center;gap:5px;flex-shrink:0;}
 .tdot{width:6px;height:6px;border-radius:50%;background:#66bb6a;box-shadow:0 0 4px #66bb6a;animation:pl 1s infinite;}
+.transc-hist{display:flex;flex-direction:column;gap:6px;overflow-y:auto;flex:1;min-height:0;}
+.transc-entry{display:flex;flex-direction:column;gap:1px;}
+.transc-entry-quem{font-size:.6rem;font-weight:700;color:var(--am);}
+.transc-entry-txt{font-size:.78rem;color:var(--txt);line-height:1.4;}
+.transc-live{display:none;flex-direction:column;gap:2px;flex-shrink:0;border-top:1px solid var(--borda);padding-top:5px;margin-top:1px;}
+.transc-live.on{display:flex;}
 .transc-quem{font-size:.66rem;color:var(--muted);font-weight:700;}
 .transc-txt{font-size:.8rem;color:var(--txt);line-height:1.4;min-height:1.1em;}
 .transc-txt .cur{display:inline-block;width:2px;height:.85em;background:var(--am);margin-left:2px;vertical-align:middle;animation:blink .7s step-end infinite;}
@@ -166,45 +179,51 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
 /* CHAT */
 #tela-chat{width:100%;max-width:430px;padding:0;height:calc(100vh - 88px);display:none;flex-direction:column;}
 #tela-chat.ativa{display:flex;}
-.conv-lista{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:2px;}
-.conv-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;cursor:pointer;transition:background .15s;}
-.conv-item:hover{background:var(--card);}
-.conv-av{width:40px;height:40px;border-radius:50%;flex-shrink:0;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;position:relative;}
-.conv-av .spip{position:absolute;bottom:1px;right:1px;width:9px;height:9px;border-radius:50%;border:2px solid var(--bg);}
+.conv-lista{flex:1;overflow-y:auto;padding:0;display:flex;flex-direction:column;}
+.conv-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--borda);cursor:pointer;transition:background .15s;}
+.conv-item:active{background:var(--card);}
+.conv-av{width:46px;height:46px;border-radius:50%;flex-shrink:0;font-size:.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;position:relative;}
+.conv-av .spip{position:absolute;bottom:2px;right:2px;width:10px;height:10px;border-radius:50%;border:2px solid var(--bg);}
 .conv-body{flex:1;min-width:0;}
-.conv-nome{font-size:.79rem;font-weight:700;}
-.conv-prev{font-size:.67rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.conv-hora{font-size:.6rem;color:var(--muted);}
-.conv-unread{background:var(--am);color:#1a1a1a;font-size:.58rem;font-weight:900;border-radius:10px;padding:1px 6px;}
+.conv-nome{font-size:.84rem;font-weight:700;}
+.conv-prev{font-size:.7rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.conv-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.conv-hora{font-size:.62rem;color:var(--muted);}
+.conv-unread{background:#25D366;color:#fff;font-size:.6rem;font-weight:900;border-radius:12px;padding:2px 7px;min-width:20px;text-align:center;}
 #chat-janela{display:none;position:fixed;inset:0;background:var(--bg);z-index:50;flex-direction:column;}
-.chat-hdr{background:var(--surface);border-bottom:1px solid var(--borda);padding:11px 15px;display:flex;align-items:center;gap:11px;}
-.btn-back{background:none;border:none;color:var(--am);font-size:1rem;cursor:pointer;padding:3px;}
-.chat-hdr-av{width:34px;height:34px;border-radius:50%;flex-shrink:0;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.chat-hdr{background:#128C7E;border-bottom:none;padding:10px 14px;display:flex;align-items:center;gap:11px;}
+.btn-back{background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;padding:3px 6px;}
+.chat-hdr-av{width:36px;height:36px;border-radius:50%;flex-shrink:0;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.2);color:#fff;}
 .chat-hdr-info{flex:1;}
-.chat-hdr-nome{font-size:.85rem;font-weight:800;}
-.chat-hdr-status{font-size:.62rem;color:var(--muted);margin-top:1px;}
-.btn-ligar{background:var(--am);border:none;border-radius:20px;padding:5px 11px;font-family:'Montserrat',sans-serif;font-size:.62rem;font-weight:800;color:#1a1a1a;cursor:pointer;}
-.msgs{flex:1;overflow-y:auto;padding:13px 14px;display:flex;flex-direction:column;gap:7px;background:#f0f0f0;}
-.msg{max-width:78%;display:flex;flex-direction:column;gap:2px;}
-.msg.eu{align-self:flex-end;align-items:flex-end;}
-.msg.outro{align-self:flex-start;align-items:flex-start;}
-.msg-bubble{padding:8px 11px;border-radius:13px;font-size:.78rem;line-height:1.4;}
-.msg.eu .msg-bubble{background:color-mix(in srgb,var(--am) 20%,#fff);border-bottom-right-radius:3px;}
-.msg.outro .msg-bubble{background:#fff;border-bottom-left-radius:3px;}
-.msg-hora{font-size:.56rem;color:var(--muted);}
-.msg-audio{display:flex;align-items:center;gap:7px;padding:7px 11px;border-radius:13px;background:#fff;}
-.msg.eu .msg-audio{background:color-mix(in srgb,var(--am) 20%,#fff);}
-.play-btn{width:26px;height:26px;border-radius:50%;background:var(--am);border:none;cursor:pointer;font-size:.75rem;flex-shrink:0;}
-.msg-recado{background:color-mix(in srgb,var(--am) 12%,#fff);border:1px dashed color-mix(in srgb,var(--am) 40%,transparent);border-radius:11px;padding:9px 12px;font-size:.74rem;display:flex;flex-direction:column;gap:3px;}
-.msg-recado .rtag{font-size:.56rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--am);}
-.dia-sep{text-align:center;font-size:.6rem;color:var(--muted);font-family:'Share Tech Mono',monospace;margin:3px 0;}
-.chat-input-area{background:var(--surface);border-top:1px solid var(--borda);padding:9px 13px;display:flex;align-items:center;gap:7px;}
-.chat-input{flex:1;background:var(--card);border:1px solid var(--borda);border-radius:20px;padding:8px 13px;color:var(--txt);font-family:'Montserrat',sans-serif;font-size:.79rem;outline:none;}
-.chat-input:focus{border-color:var(--am);}
-.btn-send{width:36px;height:36px;border-radius:50%;background:var(--am);border:none;cursor:pointer;font-size:.9rem;flex-shrink:0;}
-.btn-ptt-mini{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--borda);cursor:pointer;font-size:.9rem;flex-shrink:0;user-select:none;touch-action:none;}
-.btn-ptt-mini.on{background:var(--am);border-color:var(--am);}
-.btn-recado{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--borda);cursor:pointer;font-size:.88rem;flex-shrink:0;}
+.chat-hdr-nome{font-size:.88rem;font-weight:700;color:#fff;}
+.chat-hdr-status{font-size:.62rem;color:rgba(255,255,255,.8);margin-top:1px;}
+.btn-ligar{background:none;border:none;color:#fff;font-size:1rem;cursor:pointer;padding:5px 8px;}
+.msgs{flex:1;overflow-y:auto;padding:10px 10px 14px;display:flex;flex-direction:column;gap:2px;background:#E5DDD5;}
+.msg{max-width:80%;display:flex;flex-direction:column;}
+.msg.eu{align-self:flex-end;}
+.msg.outro{align-self:flex-start;}
+.msg-bubble{padding:6px 9px 4px;border-radius:8px;font-size:.8rem;line-height:1.45;position:relative;word-break:break-word;color:#111;}
+.msg.eu .msg-bubble{background:#DCF8C6;border-top-right-radius:0;}
+.msg.outro .msg-bubble{background:#fff;border-top-left-radius:0;}
+.msg.eu .msg-bubble::before{content:'';position:absolute;top:0;right:-8px;border-width:0 0 9px 8px;border-style:solid;border-color:transparent transparent transparent #DCF8C6;}
+.msg.outro .msg-bubble::before{content:'';position:absolute;top:0;left:-8px;border-width:0 8px 9px 0;border-style:solid;border-color:transparent #fff transparent transparent;}
+.msg-meta{float:right;margin:5px -2px -2px 8px;font-size:.58rem;color:rgba(0,0,0,.45);display:inline-flex;align-items:center;gap:3px;white-space:nowrap;}
+.tick{color:#4FC3F7;font-size:.65rem;}
+.dia-sep{align-self:center;background:rgba(255,255,255,.8);color:#666;font-size:.62rem;border-radius:7px;padding:3px 10px;margin:7px 0;font-weight:600;}
+.msg-audio{display:flex;align-items:center;gap:8px;min-width:180px;padding:2px 0;}
+.play-btn{width:36px;height:36px;border-radius:50%;background:#25D366;border:none;cursor:pointer;font-size:.8rem;flex-shrink:0;color:#fff;}
+.msg-waveform{flex:1;height:24px;display:flex;align-items:center;gap:1.5px;}
+.msg-waveform span{display:inline-block;width:2.5px;border-radius:2px;background:rgba(0,0,0,.22);}
+.msg-dur{font-size:.62rem;color:rgba(0,0,0,.4);white-space:nowrap;}
+.msg-recado{background:#FFF9C4;border-left:3px solid #F59E0B;border-top-left-radius:0!important;padding:7px 10px 5px;font-size:.78rem;color:#111;display:flex;flex-direction:column;gap:3px;}
+.msg-recado .rtag{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#D97706;}
+.chat-input-area{background:var(--surface);border-top:1px solid var(--borda);padding:8px 10px;display:flex;align-items:center;gap:6px;}
+.chat-input{flex:1;background:var(--card);border:1px solid var(--borda);border-radius:22px;padding:9px 14px;color:var(--txt);font-family:'Montserrat',sans-serif;font-size:.8rem;outline:none;}
+.chat-input:focus{border-color:#25D366;}
+.btn-send{width:40px;height:40px;border-radius:50%;background:#25D366;border:none;cursor:pointer;font-size:.95rem;flex-shrink:0;color:#fff;}
+.btn-ptt-mini{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--borda);cursor:pointer;font-size:.95rem;flex-shrink:0;user-select:none;touch-action:none;}
+.btn-ptt-mini.on{background:#25D366;border-color:#25D366;color:#fff;}
+.btn-recado{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--borda);cursor:pointer;font-size:.9rem;flex-shrink:0;}
 
 /* TOAST */
 .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:.72rem;font-weight:700;padding:8px 16px;border-radius:20px;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;}
@@ -289,8 +308,11 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
 
     <div class="transc-box" id="transc-box">
       <div class="transc-lbl"><span class="tdot"></span> Transcrição em tempo real</div>
-      <div class="transc-quem" id="transc-quem"></div>
-      <div class="transc-txt" id="transc-txt"><span class="cur"></span></div>
+      <div class="transc-hist" id="transc-hist"></div>
+      <div class="transc-live" id="transc-live">
+        <div class="transc-quem" id="transc-quem"></div>
+        <div class="transc-txt" id="transc-txt"><span class="cur"></span></div>
+      </div>
     </div>
 
     <div class="sec">Canais</div>
@@ -300,7 +322,7 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
         <div class="ch-nome">Geral</div>
         <div class="ch-info"><div class="ch-pip"></div><span id="ol-geral">0</span> online</div>
       </div>
-      <div class="ch" style="--cor:#ef5350" onclick="trocarCanal(this,'Direção','#ef5350')">
+      <div class="ch" id="ch-direcao" style="--cor:#ef5350" onclick="trocarCanal(this,'Direção','#ef5350')">
         <div class="ch-bdg"></div><div class="ch-icon">🏛️</div>
         <div class="ch-nome">Direção</div>
         <div class="ch-info"><div class="ch-pip"></div><span id="ol-direcao">0</span> online</div>
@@ -607,6 +629,10 @@ function iniciarApp(usuario) {
   document.getElementById('bloco-manutencao').style.display = myProfile === 'manutencao' ? 'flex' : 'none';
   document.getElementById('bloco-log').style.display = (myProfile === 'professor' || myProfile === 'direcao') ? 'none' : 'block';
 
+  const semAcessoDirecao = myProfile === 'professor' || myProfile === 'funcionario';
+  const chDirecaoEl = document.getElementById('ch-direcao');
+  if (semAcessoDirecao) chDirecaoEl.style.display = 'none';
+
   const tabC = document.getElementById('tab-chamados');
   if (!p.showChamados) {
     tabC.style.display = 'none';
@@ -730,6 +756,7 @@ function trocarTab(tab, btn) {
 
 // ── CANAL ──
 function trocarCanal(el, nome, cor) {
+  if (nome === 'Direção' && (myProfile === 'professor' || myProfile === 'funcionario')) return;
   document.querySelectorAll('.ch').forEach(c => c.classList.remove('sel'));
   el.classList.add('sel');
   currentChannel = nome;
@@ -777,6 +804,7 @@ async function iniciarPTT(e) {
   currentTranscript = '';
   document.getElementById('transc-quem').textContent = myName + ' · ' + currentChannel;
   document.getElementById('transc-txt').innerHTML = '<span class="cur"></span>';
+  document.getElementById('transc-live').classList.add('on');
   document.getElementById('transc-box').classList.add('vis');
 
   enviar({ type:'ptt_start', mimeType: mediaRecorder.mimeType });
@@ -801,7 +829,8 @@ function pararPTT() {
   document.getElementById('ptt-hint').textContent = 'SEGURE PARA FALAR';
   waveformOn(false);
   document.getElementById('ptt-timer').textContent = pttSec > 0 ? '✓ ' + pttSec + 's' : '';
-  setTimeout(() => document.getElementById('transc-box').classList.remove('vis'), 4000);
+  document.getElementById('transc-live').classList.remove('on');
+  if (currentTranscript) adicionarTranscricao(myName, currentTranscript);
 }
 
 function waveformOn(on) {
@@ -839,6 +868,7 @@ function onPTTStart(msg) {
   waveformOn(true);
   document.getElementById('transc-quem').textContent = msg.userName + ' · ' + msg.channel;
   document.getElementById('transc-txt').innerHTML = '<span class="cur"></span>';
+  document.getElementById('transc-live').classList.add('on');
   document.getElementById('transc-box').classList.add('vis');
 }
 
@@ -867,20 +897,27 @@ function reproduzirPTT(ptt) {
   const url = URL.createObjectURL(blob);
   const audio = new Audio(url);
 
-  if (ptt.transcription) {
-    document.getElementById('transc-quem').textContent = ptt.userName;
-    document.getElementById('transc-txt').textContent = ptt.transcription;
-    document.getElementById('transc-box').classList.add('vis');
-  }
-
   audio.onended = () => {
     URL.revokeObjectURL(url);
     waveformOn(false);
+    document.getElementById('transc-live').classList.remove('on');
+    if (ptt.transcription) adicionarTranscricao(ptt.userName, ptt.transcription);
     adicionarLog(ptt.userName, ptt.transcription, Math.round(audio.duration || 0));
-    setTimeout(() => document.getElementById('transc-box').classList.remove('vis'), 3000);
   };
   audio.onerror = () => { URL.revokeObjectURL(url); waveformOn(false); };
   audio.play().catch(() => { URL.revokeObjectURL(url); waveformOn(false); });
+}
+
+function adicionarTranscricao(quem, txt) {
+  if (!txt) return;
+  const hist = document.getElementById('transc-hist');
+  const entry = document.createElement('div');
+  entry.className = 'transc-entry';
+  entry.innerHTML = `<div class="transc-entry-quem">${quem}</div><div class="transc-entry-txt">${txt}</div>`;
+  hist.appendChild(entry);
+  if (hist.children.length > 20) hist.firstElementChild.remove();
+  hist.scrollTop = hist.scrollHeight;
+  document.getElementById('transc-box').classList.add('vis');
 }
 
 function adicionarLog(quem, transc, durSec) {
@@ -1112,7 +1149,7 @@ function renderConvs() {
         <div class="conv-nome">${u.name}</div>
         <div class="conv-prev">${last ? (last.txt || '[áudio]') : 'Iniciar conversa'}</div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+      <div class="conv-right">
         <div class="conv-hora">${last ? last.h : ''}</div>
         ${unread > 0 ? `<div class="conv-unread">${unread}</div>` : ''}
       </div>
@@ -1163,6 +1200,12 @@ function fecharJanela() {
   convAtual = null;
 }
 
+function waveform() {
+  return '<div class="msg-waveform">' +
+    Array.from({length:20},(_,i)=>`<span style="height:${6+Math.abs(Math.sin(i*.7+1))*14}px"></span>`).join('') +
+  '</div>';
+}
+
 function renderMsgs(uid) {
   const area = document.getElementById('msgs-area');
   area.innerHTML = '';
@@ -1172,17 +1215,20 @@ function renderMsgs(uid) {
       d.className = 'dia-sep'; d.textContent = m.txt;
     } else if (m.t === 'recado') {
       d.className = 'msg outro';
-      d.innerHTML = `<div class="msg-recado"><div class="rtag">📌 Recado de ${m.de}</div>${m.txt}</div><div class="msg-hora">${m.h}</div>`;
+      d.innerHTML = `<div class="msg-bubble msg-recado"><div class="rtag">📌 Recado de ${m.de}</div>${m.txt}<span class="msg-meta">${m.h}</span></div>`;
     } else if (m.t === 'audio') {
-      d.className = 'msg ' + (m.eu ? 'eu' : 'outro');
+      const eu = m.eu;
+      d.className = 'msg ' + (eu ? 'eu' : 'outro');
+      const meta = `<span class="msg-meta"><span class="msg-dur">${m.dur||'0:??'}</span> · ${m.h}${eu?' <span class="tick">✓✓</span>':''}</span>`;
       if (m.url) {
-        d.innerHTML = `<div class="msg-audio"><button class="play-btn" onclick="playMsgAudio('${m.url}',this)">▶</button><span style="font-family:monospace;font-size:.7rem;color:#888">▬▬▬▬ ${m.dur||'0:??'}</span></div><div class="msg-hora">${m.h}</div>`;
+        d.innerHTML = `<div class="msg-bubble"><div class="msg-audio"><button class="play-btn" onclick="playMsgAudio('${m.url}',this)">▶</button>${waveform()}</div>${meta}</div>`;
       } else {
-        d.innerHTML = `<div class="msg-audio" style="opacity:.5"><button class="play-btn" disabled>▶</button><span style="font-family:monospace;font-size:.7rem;color:#888">▬▬▬▬ áudio</span></div><div class="msg-hora">${m.h}</div>`;
+        d.innerHTML = `<div class="msg-bubble" style="opacity:.6"><div class="msg-audio"><button class="play-btn" disabled>▶</button>${waveform()}</div>${meta}</div>`;
       }
     } else {
       d.className = 'msg ' + m.t;
-      d.innerHTML = `<div class="msg-bubble">${m.txt}</div><div class="msg-hora">${m.h}</div>`;
+      const eu = m.t === 'eu';
+      d.innerHTML = `<div class="msg-bubble">${m.txt}<span class="msg-meta">${m.h}${eu?' <span class="tick">✓✓</span>':''}</span></div>`;
     }
     area.appendChild(d);
   });
@@ -1300,6 +1346,10 @@ function toast(msg) {
   el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
 </script>
 </body>
