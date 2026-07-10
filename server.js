@@ -130,7 +130,22 @@ app.put('/api/admin/usuarios/:id', adminOnly, async (req, res) => {
   res.json(data);
 });
 
-// ── HISTÓRICO ──
+// ── HISTÓRICO DE CHAT ENTRE DOIS USUÁRIOS ──
+app.get('/api/mensagens', authMiddleware, async (req, res) => {
+  const { com } = req.query;
+  if (!com) return res.status(400).json({ erro: 'Parâmetro "com" obrigatório' });
+  const myId = req.user.id;
+  const { data, error } = await supabase
+    .from('mensagens')
+    .select('*')
+    .or(`and(de_id.eq.${myId},para_id.eq.${com}),and(de_id.eq.${com},para_id.eq.${myId})`)
+    .order('criada_em', { ascending: true })
+    .limit(50);
+  if (error) return res.status(500).json({ erro: error.message });
+  res.json(data);
+});
+
+// ── HISTÓRICO ADMIN ──
 app.get('/api/admin/mensagens', adminOnly, async (req, res) => {
   const { para_id } = req.query;
   let q = supabase.from('mensagens').select('*').order('criada_em', { ascending: false }).limit(100);

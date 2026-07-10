@@ -352,6 +352,56 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
       </div>
     </div>
 
+    <!-- Chamados rápidos (monitor) -->
+    <div id="bloco-monitor" style="display:none;flex-direction:column;gap:11px;">
+      <div class="sec">Chamados rápidos</div>
+      <div class="chamados-grid">
+        <button class="chamado-btn" onclick="enviarChamado('direcao','🚨','Emergência com aluno')">
+          <div class="chamado-ic" style="background:#ffebee;">🚨</div>
+          <div class="chamado-body"><div class="chamado-titulo">Emergência</div><div class="chamado-desc">Requer atenção imediata da direção</div></div>
+          <span class="chamado-seta">›</span>
+        </button>
+        <button class="chamado-btn" onclick="enviarChamado('direcao','🏥','Precisa de apoio médico')">
+          <div class="chamado-ic" style="background:#fce4ec;">🏥</div>
+          <div class="chamado-body"><div class="chamado-titulo">Apoio médico</div><div class="chamado-desc">Aluno ou funcionário precisa de socorro</div></div>
+          <span class="chamado-seta">›</span>
+        </button>
+      </div>
+      <div class="status-chamado" id="status-chamado-mon">
+        <span class="sc-icon" id="sc-icon-mon">📡</span>
+        <div class="sc-body">
+          <div class="sc-titulo" id="sc-titulo-mon">Chamado enviado</div>
+          <div class="sc-desc" id="sc-desc-mon">Aguardando confirmação...</div>
+        </div>
+        <button class="sc-cancel" onclick="cancelarChamadoPerfil('mon')">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- Chamados rápidos (manutenção) -->
+    <div id="bloco-manutencao" style="display:none;flex-direction:column;gap:11px;">
+      <div class="sec">Comunicar</div>
+      <div class="chamados-grid">
+        <button class="chamado-btn" onclick="enviarChamado('direcao','✅','Serviço concluído')">
+          <div class="chamado-ic" style="background:#e8f5e9;">✅</div>
+          <div class="chamado-body"><div class="chamado-titulo">Serviço concluído</div><div class="chamado-desc">Informar direção sobre conclusão</div></div>
+          <span class="chamado-seta">›</span>
+        </button>
+        <button class="chamado-btn" onclick="enviarChamado('direcao','🆘','Precisa de ajuda')">
+          <div class="chamado-ic" style="background:#fff3e0;">🆘</div>
+          <div class="chamado-body"><div class="chamado-titulo">Precisa de ajuda</div><div class="chamado-desc">Requer suporte ou mais recursos</div></div>
+          <span class="chamado-seta">›</span>
+        </button>
+      </div>
+      <div class="status-chamado" id="status-chamado-man">
+        <span class="sc-icon" id="sc-icon-man">📡</span>
+        <div class="sc-body">
+          <div class="sc-titulo" id="sc-titulo-man">Chamado enviado</div>
+          <div class="sc-desc" id="sc-desc-man">Aguardando confirmação...</div>
+        </div>
+        <button class="sc-cancel" onclick="cancelarChamadoPerfil('man')">Cancelar</button>
+      </div>
+    </div>
+
     <!-- Chamados rápidos (professor) -->
     <div id="bloco-professor" style="display:none;flex-direction:column;gap:11px;">
       <div class="sec">Chamados rápidos</div>
@@ -410,11 +460,24 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
 
   <!-- ABA CHAMADOS -->
   <div class="tela" id="tela-chamados">
-    <div class="sec">Pendentes</div>
-    <div id="chamados-list">
-      <div id="chamados-empty" style="padding:20px;text-align:center;font-size:.72rem;color:#aaa;">
-        Nenhum chamado pendente
-      </div>
+    <div id="chamados-empty" style="padding:20px;text-align:center;font-size:.72rem;color:#aaa;">
+      Nenhum chamado pendente
+    </div>
+    <div id="grupo-monitor" style="display:none;flex-direction:column;gap:8px;">
+      <div class="sec">🙋 Monitores</div>
+      <div id="lista-monitor" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+    <div id="grupo-manutencao-ch" style="display:none;flex-direction:column;gap:8px;">
+      <div class="sec">🔧 Manutenção</div>
+      <div id="lista-manutencao" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+    <div id="grupo-direcao-ch" style="display:none;flex-direction:column;gap:8px;">
+      <div class="sec">🏛️ Direção</div>
+      <div id="lista-direcao" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+    <div id="grupo-outros" style="display:none;flex-direction:column;gap:8px;">
+      <div class="sec">🔔 Chamados</div>
+      <div id="lista-outros" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
     <div class="sec" id="sec-concluidos" style="display:none;">Concluídos hoje</div>
     <div id="chamados-concluidos" style="display:flex;flex-direction:column;gap:8px;"></div>
@@ -545,6 +608,8 @@ function iniciarApp(usuario) {
   document.getElementById('ptt-wrap').style.display = p.showPTT ? 'flex' : 'none';
   document.getElementById('bloco-professor').style.display = myProfile === 'professor' ? 'flex' : 'none';
   document.getElementById('bloco-direcao').style.display = myProfile === 'direcao' ? 'flex' : 'none';
+  document.getElementById('bloco-monitor').style.display = myProfile === 'monitor' ? 'flex' : 'none';
+  document.getElementById('bloco-manutencao').style.display = myProfile === 'manutencao' ? 'flex' : 'none';
   document.getElementById('bloco-log').style.display = (myProfile === 'professor' || myProfile === 'direcao') ? 'none' : 'block';
 
   const tabC = document.getElementById('tab-chamados');
@@ -850,8 +915,10 @@ function adicionarLog(quem, transc, durSec) {
 // ── CHAMADOS (PROFESSOR ENVIA) ──
 let pendingChamadoId = null, pendingChamadoTimer = null;
 
+const PERFIL_SFX = { professor: '', direcao: '-dir', monitor: '-mon', manutencao: '-man' };
+
 function enviarChamado(targetProfile, icon, titulo) {
-  const sfx = myProfile === 'direcao' ? '-dir' : '';
+  const sfx = PERFIL_SFX[myProfile] || '';
   const sc = document.getElementById('status-chamado' + sfx);
   document.getElementById('sc-icon' + sfx).textContent = icon;
   document.getElementById('sc-titulo' + sfx).textContent = titulo + ' — enviado!';
@@ -866,16 +933,13 @@ function enviarChamado(targetProfile, icon, titulo) {
   enviar({ type:'chamado_send', targetProfile, icon, titulo, descricao: myName });
 }
 
-function cancelarChamado() {
+function cancelarChamado() { cancelarChamadoPerfil(''); }
+function cancelarChamadoDir() { cancelarChamadoPerfil('-dir'); }
+function cancelarChamadoPerfil(sfx) {
   clearTimeout(pendingChamadoTimer);
   pendingChamadoId = null;
-  document.getElementById('status-chamado').style.display = 'none';
-}
-
-function cancelarChamadoDir() {
-  clearTimeout(pendingChamadoTimer);
-  pendingChamadoId = null;
-  document.getElementById('status-chamado-dir').style.display = 'none';
+  const el = document.getElementById('status-chamado' + sfx);
+  if (el) el.style.display = 'none';
 }
 
 function onChamadoSent(msg) {
@@ -885,7 +949,7 @@ function onChamadoSent(msg) {
 function onChamadoAccepted(msg) {
   if (msg.chamadoId !== pendingChamadoId) return;
   clearTimeout(pendingChamadoTimer);
-  const sfx = myProfile === 'direcao' ? '-dir' : '';
+  const sfx = PERFIL_SFX[myProfile] || '';
   const sc = document.getElementById('status-chamado' + sfx);
   document.getElementById('sc-titulo' + sfx).textContent = '✓ Chamado aceito!';
   document.getElementById('sc-desc' + sfx).textContent = msg.byName + ' está a caminho.';
@@ -895,20 +959,35 @@ function onChamadoAccepted(msg) {
 
 function onChamadoRejected(msg) {
   if (msg.chamadoId !== pendingChamadoId) return;
-  const sfx = myProfile === 'direcao' ? '-dir' : '';
+  const sfx = PERFIL_SFX[myProfile] || '';
   document.getElementById('sc-desc' + sfx).textContent = 'Chamado recusado. Tente novamente.';
   document.getElementById('status-chamado' + sfx).style.cssText += ';border-color:#ef5350;background:#ffebee';
 }
 
 // ── CHAMADOS (MONITOR/MANUTENÇÃO RECEBE) ──
+const GRUPO_MAP = {
+  monitor: 'grupo-monitor',
+  manutencao: 'grupo-manutencao-ch',
+  direcao: 'grupo-direcao-ch',
+};
+const LISTA_MAP = {
+  monitor: 'lista-monitor',
+  manutencao: 'lista-manutencao',
+  direcao: 'lista-direcao',
+};
+
 function onChamadoNew(msg) {
   chamadosPend[msg.id] = msg;
   atualizarNotifChamados();
 
-  const empty = document.getElementById('chamados-empty');
-  if (empty) empty.remove();
+  document.getElementById('chamados-empty').style.display = 'none';
 
-  const lista = document.getElementById('chamados-list');
+  const grupoId = GRUPO_MAP[msg.targetProfile] || 'grupo-outros';
+  const listaId = LISTA_MAP[msg.targetProfile] || 'lista-outros';
+  const grupo = document.getElementById(grupoId);
+  const lista = document.getElementById(listaId);
+  grupo.style.display = 'flex';
+
   const card = document.createElement('div');
   card.className = 'chamado-card';
   card.id = 'cc-' + msg.id;
@@ -943,19 +1022,37 @@ function aceitarChamado(id) {
 function recusarChamado(id) {
   const card = document.getElementById('cc-' + id);
   if (!card) return;
+  const lista = card.parentElement;
   card.style.opacity = '0.4';
-  setTimeout(() => card.remove(), 600);
+  setTimeout(() => {
+    card.remove();
+    ocultarGrupoSeVazio(lista);
+  }, 600);
   delete chamadosPend[id];
   atualizarNotifChamados();
   enviar({ type:'chamado_reject', chamadoId:id });
 }
 
 function moverParaConcluido(card) {
+  const lista = card.parentElement;
   const sec = document.getElementById('sec-concluidos');
   const conc = document.getElementById('chamados-concluidos');
   sec.style.display = '';
   conc.style.display = 'flex';
-  setTimeout(() => conc.prepend(card), 650);
+  setTimeout(() => {
+    conc.prepend(card);
+    ocultarGrupoSeVazio(lista);
+  }, 650);
+}
+
+function ocultarGrupoSeVazio(lista) {
+  if (!lista) return;
+  if (lista.children.length === 0) {
+    const grupo = lista.parentElement;
+    if (grupo) grupo.style.display = 'none';
+  }
+  const semPendentes = Object.keys(chamadosPend).length === 0;
+  if (semPendentes) document.getElementById('chamados-empty').style.display = 'block';
 }
 
 function atualizarNotifChamados() {
@@ -1000,7 +1097,29 @@ function renderConvs() {
   });
 }
 
-function abrirJanela(u) {
+async function carregarHistoricoChat(userId) {
+  try {
+    const res = await fetch(`/api/mensagens?com=${userId}`, {
+      headers: { Authorization: 'Bearer ' + localStorage.getItem('sci_token') }
+    });
+    if (!res.ok) return;
+    const msgs = await res.json();
+    chatHistory[userId] = [];
+    msgs.forEach(m => {
+      const eu = m.de_id === myId;
+      const h = new Date(m.criada_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      if (m.tipo === 'note') {
+        chatHistory[userId].push({ t: 'recado', txt: m.conteudo, h, de: m.de_nome });
+      } else if (m.tipo === 'audio') {
+        chatHistory[userId].push({ t: 'audio', eu, url: null, dur: '?', h });
+      } else {
+        chatHistory[userId].push({ t: eu ? 'eu' : 'outro', txt: m.conteudo, h });
+      }
+    });
+  } catch {}
+}
+
+async function abrirJanela(u) {
   convAtual = u;
   if (u._unread) { u._unread = 0; renderConvs(); }
   const ini = u.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0,2);
@@ -1009,9 +1128,10 @@ function abrirJanela(u) {
   document.getElementById('j-nome').textContent = u.name;
   document.getElementById('j-status').textContent = '● Online';
   document.getElementById('j-status').style.color = '#66bb6a';
-  renderMsgs(u.id);
   const j = document.getElementById('chat-janela');
   j.style.cssText = 'display:flex;flex-direction:column';
+  if (!chatHistory[u.id]) await carregarHistoricoChat(u.id);
+  renderMsgs(u.id);
 }
 
 function fecharJanela() {
@@ -1031,7 +1151,11 @@ function renderMsgs(uid) {
       d.innerHTML = `<div class="msg-recado"><div class="rtag">📌 Recado de ${m.de}</div>${m.txt}</div><div class="msg-hora">${m.h}</div>`;
     } else if (m.t === 'audio') {
       d.className = 'msg ' + (m.eu ? 'eu' : 'outro');
-      d.innerHTML = `<div class="msg-audio"><button class="play-btn" onclick="playMsgAudio('${m.url}',this)">▶</button><span style="font-family:monospace;font-size:.7rem;color:#888">▬▬▬▬ ${m.dur||'0:??'}</span></div><div class="msg-hora">${m.h}</div>`;
+      if (m.url) {
+        d.innerHTML = `<div class="msg-audio"><button class="play-btn" onclick="playMsgAudio('${m.url}',this)">▶</button><span style="font-family:monospace;font-size:.7rem;color:#888">▬▬▬▬ ${m.dur||'0:??'}</span></div><div class="msg-hora">${m.h}</div>`;
+      } else {
+        d.innerHTML = `<div class="msg-audio" style="opacity:.5"><button class="play-btn" disabled>▶</button><span style="font-family:monospace;font-size:.7rem;color:#888">▬▬▬▬ áudio</span></div><div class="msg-hora">${m.h}</div>`;
+      }
     } else {
       d.className = 'msg ' + m.t;
       d.innerHTML = `<div class="msg-bubble">${m.txt}</div><div class="msg-hora">${m.h}</div>`;
