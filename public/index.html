@@ -317,6 +317,41 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
       </div>
     </div>
 
+    <!-- Chamados rápidos (direção) -->
+    <div id="bloco-direcao" style="display:none;flex-direction:column;gap:11px;">
+      <div class="sec">Chamados rápidos</div>
+      <div class="chamados-grid">
+        <button class="chamado-btn" onclick="enviarChamado('professor','📢','Reunião urgente')">
+          <div class="chamado-ic" style="background:#fff8e1;">📢</div>
+          <div class="chamado-body"><div class="chamado-titulo">Reunião urgente</div><div class="chamado-desc">Convoca professores e monitores</div></div>
+          <span class="chamado-seta">›</span>
+        </button>
+        <button class="chamado-btn" onclick="enviarChamado('monitor','👨‍👩‍👧','Cobertura de turma')">
+          <div class="chamado-ic" style="background:#e8f5e9;">👨‍👩‍👧</div>
+          <div class="chamado-body"><div class="chamado-titulo">Cobertura de turma</div><div class="chamado-desc">Monitor para cobrir sala</div></div>
+          <span class="chamado-seta">›</span>
+        </button>
+        <button class="chamado-btn" onclick="enviarChamado('manutencao','🔧','Serviço urgente')">
+          <div class="chamado-ic" style="background:#f3e5f5;">🔧</div>
+          <div class="chamado-body"><div class="chamado-titulo">Serviço urgente</div><div class="chamado-desc">Manutenção imediata necessária</div></div>
+          <span class="chamado-seta">›</span>
+        </button>
+        <button class="chamado-btn" onclick="enviarChamado('funcionario','📋','Apoio administrativo')">
+          <div class="chamado-ic" style="background:#fff3e0;">📋</div>
+          <div class="chamado-body"><div class="chamado-titulo">Apoio administrativo</div><div class="chamado-desc">Necessita funcionário na direção</div></div>
+          <span class="chamado-seta">›</span>
+        </button>
+      </div>
+      <div class="status-chamado" id="status-chamado-dir">
+        <span class="sc-icon" id="sc-icon-dir">📡</span>
+        <div class="sc-body">
+          <div class="sc-titulo" id="sc-titulo-dir">Chamado enviado</div>
+          <div class="sc-desc" id="sc-desc-dir">Aguardando confirmação...</div>
+        </div>
+        <button class="sc-cancel" onclick="cancelarChamadoDir()">Cancelar</button>
+      </div>
+    </div>
+
     <!-- Chamados rápidos (professor) -->
     <div id="bloco-professor" style="display:none;flex-direction:column;gap:11px;">
       <div class="sec">Chamados rápidos</div>
@@ -509,7 +544,8 @@ function iniciarApp(usuario) {
 
   document.getElementById('ptt-wrap').style.display = p.showPTT ? 'flex' : 'none';
   document.getElementById('bloco-professor').style.display = myProfile === 'professor' ? 'flex' : 'none';
-  document.getElementById('bloco-log').style.display = myProfile === 'professor' ? 'none' : 'block';
+  document.getElementById('bloco-direcao').style.display = myProfile === 'direcao' ? 'flex' : 'none';
+  document.getElementById('bloco-log').style.display = (myProfile === 'professor' || myProfile === 'direcao') ? 'none' : 'block';
 
   const tabC = document.getElementById('tab-chamados');
   if (!p.showChamados) {
@@ -815,14 +851,15 @@ function adicionarLog(quem, transc, durSec) {
 let pendingChamadoId = null, pendingChamadoTimer = null;
 
 function enviarChamado(targetProfile, icon, titulo) {
-  const sc = document.getElementById('status-chamado');
-  document.getElementById('sc-icon').textContent = icon;
-  document.getElementById('sc-titulo').textContent = titulo + ' — enviado!';
-  document.getElementById('sc-desc').textContent = '⏳ Aguardando confirmação...';
+  const sfx = myProfile === 'direcao' ? '-dir' : '';
+  const sc = document.getElementById('status-chamado' + sfx);
+  document.getElementById('sc-icon' + sfx).textContent = icon;
+  document.getElementById('sc-titulo' + sfx).textContent = titulo + ' — enviado!';
+  document.getElementById('sc-desc' + sfx).textContent = '⏳ Aguardando confirmação...';
   sc.style.cssText += ';display:flex;border-color:#ffa726;background:#fff8e1';
   clearTimeout(pendingChamadoTimer);
   pendingChamadoTimer = setTimeout(() => {
-    document.getElementById('sc-desc').textContent = 'Ninguém disponível no momento.';
+    document.getElementById('sc-desc' + sfx).textContent = 'Ninguém disponível no momento.';
     sc.style.cssText += ';border-color:#ef5350;background:#ffebee';
     pendingChamadoId = null;
   }, 30000);
@@ -835,6 +872,12 @@ function cancelarChamado() {
   document.getElementById('status-chamado').style.display = 'none';
 }
 
+function cancelarChamadoDir() {
+  clearTimeout(pendingChamadoTimer);
+  pendingChamadoId = null;
+  document.getElementById('status-chamado-dir').style.display = 'none';
+}
+
 function onChamadoSent(msg) {
   pendingChamadoId = msg.chamadoId;
 }
@@ -842,17 +885,19 @@ function onChamadoSent(msg) {
 function onChamadoAccepted(msg) {
   if (msg.chamadoId !== pendingChamadoId) return;
   clearTimeout(pendingChamadoTimer);
-  const sc = document.getElementById('status-chamado');
-  document.getElementById('sc-titulo').textContent = '✓ Chamado aceito!';
-  document.getElementById('sc-desc').textContent = msg.byName + ' está a caminho.';
+  const sfx = myProfile === 'direcao' ? '-dir' : '';
+  const sc = document.getElementById('status-chamado' + sfx);
+  document.getElementById('sc-titulo' + sfx).textContent = '✓ Chamado aceito!';
+  document.getElementById('sc-desc' + sfx).textContent = msg.byName + ' está a caminho.';
   sc.style.cssText += ';border-color:#66bb6a;background:#f1f8e9';
   pendingChamadoId = null;
 }
 
 function onChamadoRejected(msg) {
   if (msg.chamadoId !== pendingChamadoId) return;
-  document.getElementById('sc-desc').textContent = 'Chamado recusado. Tente novamente.';
-  document.getElementById('status-chamado').style.cssText += ';border-color:#ef5350;background:#ffebee';
+  const sfx = myProfile === 'direcao' ? '-dir' : '';
+  document.getElementById('sc-desc' + sfx).textContent = 'Chamado recusado. Tente novamente.';
+  document.getElementById('status-chamado' + sfx).style.cssText += ';border-color:#ef5350;background:#ffebee';
 }
 
 // ── CHAMADOS (MONITOR/MANUTENÇÃO RECEBE) ──
