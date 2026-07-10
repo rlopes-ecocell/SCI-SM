@@ -913,6 +913,11 @@ let pendingChamadoId = null, pendingChamadoTimer = null;
 const PERFIL_SFX = { professor: '', direcao: '-dir', monitor: '-mon', manutencao: '-man' };
 
 function enviarChamado(targetProfile, icon, titulo) {
+  if (pendingChamadoId) {
+    toast('Aguarde — você já tem um chamado em aberto');
+    return;
+  }
+  pendingChamadoId = 'aguardando';
   const sfx = PERFIL_SFX[myProfile] || '';
   const sc = document.getElementById('status-chamado' + sfx);
   document.getElementById('sc-icon' + sfx).textContent = icon;
