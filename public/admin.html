@@ -73,6 +73,8 @@ tr:hover td{background:color-mix(in srgb,var(--am) 4%,var(--surface));}
 .btn-edit:hover{border-color:var(--blue);color:var(--blue);}
 .btn-toggle{background:none;border:1px solid var(--borda);border-radius:6px;padding:4px 10px;font-family:'Montserrat',sans-serif;font-size:.62rem;font-weight:700;cursor:pointer;color:var(--muted);}
 .btn-toggle:hover{border-color:var(--red);color:var(--red);}
+.btn-delete{background:none;border:1px solid var(--borda);border-radius:6px;padding:4px 10px;font-family:'Montserrat',sans-serif;font-size:.62rem;font-weight:700;cursor:pointer;color:var(--muted);}
+.btn-delete:hover{border-color:var(--red);color:var(--red);background:color-mix(in srgb,var(--red) 8%,transparent);}
 .empty{padding:30px;text-align:center;font-size:.75rem;color:var(--muted);}
 
 /* MODAL */
@@ -340,6 +342,7 @@ async function carregarUsuarios() {
         <td><div class="acoes">
           <button class="btn-edit" onclick="editarUsuario(${JSON.stringify(u).replace(/"/g,'&quot;')})">Editar</button>
           <button class="btn-toggle" onclick="toggleAtivo('${u.id}',${u.ativo})">${u.ativo?'Desativar':'Ativar'}</button>
+          <button class="btn-delete" onclick="deletarUsuario('${u.id}','${u.nome.replace(/'/g,"\\'")}')">Excluir</button>
         </div></td>
       </tr>`;
     }).join('');
@@ -407,6 +410,17 @@ async function salvarUsuario() {
     carregarUsuarios();
   } catch(e) {
     erroEl.textContent = e.message;
+  }
+}
+
+async function deletarUsuario(id, nome) {
+  if (!confirm(`Excluir "${nome}" permanentemente?\n\nIsso também apaga todas as mensagens e chamados deste usuário.`)) return;
+  try {
+    await api('/api/admin/usuarios/' + id, 'DELETE');
+    toast('Usuário excluído');
+    carregarUsuarios();
+  } catch(e) {
+    toast(e.message);
   }
 }
 

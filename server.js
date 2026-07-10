@@ -130,6 +130,18 @@ app.put('/api/admin/usuarios/:id', adminOnly, async (req, res) => {
   res.json(data);
 });
 
+app.delete('/api/admin/usuarios/:id', adminOnly, async (req, res) => {
+  const { id } = req.params;
+  if (id === req.user.id) return res.status(400).json({ erro: 'Não é possível excluir seu próprio usuário' });
+  // Remove registros dependentes antes de deletar o usuário
+  await supabase.from('mensagens').delete().or(`de_id.eq.${id},para_id.eq.${id}`);
+  await supabase.from('chamados').delete().or(`de_id.eq.${id},aceito_por_id.eq.${id}`);
+  await supabase.from('transmissoes').delete().eq('de_id', id);
+  const { error } = await supabase.from('usuarios').delete().eq('id', id);
+  if (error) return res.status(500).json({ erro: error.message });
+  res.json({ ok: true });
+});
+
 // ── HISTÓRICO DE CHAT ENTRE DOIS USUÁRIOS ──
 app.get('/api/mensagens', authMiddleware, async (req, res) => {
   const { com } = req.query;
