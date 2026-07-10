@@ -908,60 +908,84 @@ function adicionarLog(quem, transc, durSec) {
 }
 
 // ── CHAMADOS (PROFESSOR ENVIA) ──
-let pendingChamadoId = null, pendingChamadoTimer = null;
+const pendingChamados = {}; // titulo → { id, timer, sfx }
+const chamadoIdMap = {};    // chamadoId → titulo
 
 const PERFIL_SFX = { professor: '', direcao: '-dir', monitor: '-mon', manutencao: '-man' };
 
 function enviarChamado(targetProfile, icon, titulo) {
-  if (pendingChamadoId) {
-    toast('Aguarde — você já tem um chamado em aberto');
+  if (pendingChamados[titulo]) {
+    toast('Já há um chamado "' + titulo + '" em aberto');
     return;
   }
-  pendingChamadoId = 'aguardando';
   const sfx = PERFIL_SFX[myProfile] || '';
   const sc = document.getElementById('status-chamado' + sfx);
   document.getElementById('sc-icon' + sfx).textContent = icon;
   document.getElementById('sc-titulo' + sfx).textContent = titulo + ' — enviado!';
   document.getElementById('sc-desc' + sfx).textContent = '⏳ Aguardando confirmação...';
   sc.style.cssText += ';display:flex;border-color:#ffa726;background:#fff8e1';
-  clearTimeout(pendingChamadoTimer);
-  pendingChamadoTimer = setTimeout(() => {
+
+  const timer = setTimeout(() => {
+    if (!pendingChamados[titulo]) return;
     document.getElementById('sc-desc' + sfx).textContent = 'Ninguém disponível no momento.';
-    sc.style.cssText += ';border-color:#ef5350;background:#ffebee';
-    pendingChamadoId = null;
+    document.getElementById('status-chamado' + sfx).style.cssText += ';border-color:#ef5350;background:#ffebee';
+    delete pendingChamados[titulo];
   }, 30000);
+
+  pendingChamados[titulo] = { id: null, timer, sfx };
   enviar({ type:'chamado_send', targetProfile, icon, titulo, descricao: myName });
 }
 
 function cancelarChamado() { cancelarChamadoPerfil(''); }
 function cancelarChamadoDir() { cancelarChamadoPerfil('-dir'); }
 function cancelarChamadoPerfil(sfx) {
-  clearTimeout(pendingChamadoTimer);
-  pendingChamadoId = null;
+  for (const [titulo, info] of Object.entries(pendingChamados)) {
+    if (info.sfx === sfx) {
+      clearTimeout(info.timer);
+      delete pendingChamados[titulo];
+    }
+  }
   const el = document.getElementById('status-chamado' + sfx);
   if (el) el.style.display = 'none';
 }
 
 function onChamadoSent(msg) {
-  pendingChamadoId = msg.chamadoId;
+  for (const [titulo, info] of Object.entries(pendingChamados)) {
+    if (!info.id) {
+      info.id = msg.chamadoId;
+      chamadoIdMap[msg.chamadoId] = titulo;
+      break;
+    }
+  }
 }
 
 function onChamadoAccepted(msg) {
-  if (msg.chamadoId !== pendingChamadoId) return;
-  clearTimeout(pendingChamadoTimer);
-  const sfx = PERFIL_SFX[myProfile] || '';
+  const titulo = chamadoIdMap[msg.chamadoId];
+  if (!titulo || !pendingChamados[titulo]) return;
+  const { timer, sfx } = pendingChamados[titulo];
+  clearTimeout(timer);
+  delete pendingChamados[titulo];
+  delete chamadoIdMap[msg.chamadoId];
   const sc = document.getElementById('status-chamado' + sfx);
-  document.getElementById('sc-titulo' + sfx).textContent = '✓ Chamado aceito!';
-  document.getElementById('sc-desc' + sfx).textContent = msg.byName + ' está a caminho.';
-  sc.style.cssText += ';border-color:#66bb6a;background:#f1f8e9';
-  pendingChamadoId = null;
+  if (sc) {
+    document.getElementById('sc-titulo' + sfx).textContent = '✓ Chamado aceito!';
+    document.getElementById('sc-desc' + sfx).textContent = msg.byName + ' está a caminho.';
+    sc.style.cssText += ';border-color:#66bb6a;background:#f1f8e9';
+  }
 }
 
 function onChamadoRejected(msg) {
-  if (msg.chamadoId !== pendingChamadoId) return;
-  const sfx = PERFIL_SFX[myProfile] || '';
-  document.getElementById('sc-desc' + sfx).textContent = 'Chamado recusado. Tente novamente.';
-  document.getElementById('status-chamado' + sfx).style.cssText += ';border-color:#ef5350;background:#ffebee';
+  const titulo = chamadoIdMap[msg.chamadoId];
+  if (!titulo || !pendingChamados[titulo]) return;
+  const { timer, sfx } = pendingChamados[titulo];
+  clearTimeout(timer);
+  delete pendingChamados[titulo];
+  delete chamadoIdMap[msg.chamadoId];
+  const el = document.getElementById('status-chamado' + sfx);
+  if (el) {
+    document.getElementById('sc-desc' + sfx).textContent = 'Chamado recusado. Tente novamente.';
+    el.style.cssText += ';border-color:#ef5350;background:#ffebee';
+  }
 }
 
 // ── CHAMADOS (MONITOR/MANUTENÇÃO RECEBE) ──
