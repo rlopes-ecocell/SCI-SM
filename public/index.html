@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCI · Escola Santa Mônica</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Share+Tech+Mono&display=swap');
+:root{
+  --bg:#f5f5f5; --surface:#fff; --card:#f0f0f0; --borda:#ddd;
+  --am:#f5c800; --am2:#ffe033; --txt:#1a1a1a; --muted:#888;
+  --geral:#2196F3; --dir:#ef5350; --prof:#66bb6a; --func:#ffa726;
+  --maint:#ab47bc; --mon:#26C6DA;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+
+/* LOGIN */
+#tela-login{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px;overflow-y:auto;}
+.login-logo{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.login-logo .titulo{font-size:1.05rem;font-weight:900;color:var(--am);text-transform:uppercase;letter-spacing:.06em;text-align:center;}
+.login-logo .sub{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.1em;}
+.login-form{width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px;}
+.field-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:3px;}
+.login-form input{width:100%;background:var(--surface);border:1px solid var(--borda);border-radius:10px;padding:11px 13px;color:var(--txt);font-family:'Montserrat',sans-serif;font-size:.86rem;font-weight:600;outline:none;transition:border-color .15s;}
+.login-form input:focus{border-color:var(--am);}
+.unid-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+.unid-btn{background:var(--card);border:2px solid var(--borda);border-radius:10px;padding:10px 5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s;}
+.unid-btn .ui{font-size:1.2rem;}
+.unid-btn .un{font-size:.58rem;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:center;}
+.unid-btn.sel{border-color:var(--am);background:color-mix(in srgb,var(--am) 10%,var(--card));}
+.unid-btn.sel .un{color:var(--am);}
+.perfil-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.perfil-btn{background:var(--card);border:2px solid var(--borda);border-radius:10px;padding:11px 8px;cursor:pointer;display:flex;align-items:center;gap:9px;transition:all .15s;}
+.perfil-btn .pi{font-size:1.2rem;flex-shrink:0;}
+.perfil-btn .pt{display:flex;flex-direction:column;gap:1px;}
+.perfil-btn .pn{font-size:.72rem;font-weight:800;color:var(--txt);}
+.perfil-btn .pd{font-size:.58rem;color:var(--muted);}
+.perfil-btn.sel{border-color:var(--cor,var(--am));background:color-mix(in srgb,var(--cor,var(--am)) 10%,var(--card));}
+.perfil-btn.sel .pn{color:var(--cor,var(--am));}
+.btn-entrar{width:100%;padding:12px;border-radius:12px;border:none;background:var(--am);color:#1a1a1a;font-family:'Montserrat',sans-serif;font-size:.86rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;transition:all .15s;}
+.btn-entrar:active{transform:scale(.97);}
+
+/* HEADER */
+#app{display:none;width:100%;flex-direction:column;align-items:center;}
+header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);padding:10px 15px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;}
+.logo-area{display:flex;align-items:center;gap:9px;}
+.logo-ic{width:30px;height:30px;background:var(--am);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.logo-text .escola{font-size:.5rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.logo-text .nome{font-size:.82rem;font-weight:900;color:var(--am);text-transform:uppercase;letter-spacing:.03em;}
+.logo-text .rtag{font-family:'Share Tech Mono',monospace;font-size:.5rem;color:var(--muted);letter-spacing:.07em;}
+.hdr-right{display:flex;align-items:center;gap:7px;}
+.unid-badge{background:color-mix(in srgb,var(--am) 14%,transparent);border:1px solid color-mix(in srgb,var(--am) 30%,transparent);border-radius:20px;padding:3px 9px;font-size:.58rem;font-weight:800;color:var(--am);text-transform:uppercase;cursor:pointer;}
+.av{width:28px;height:28px;border-radius:50%;background:var(--am);color:#1a1a1a;font-size:.6rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.perfil-pill{border-radius:20px;padding:3px 9px;font-size:.58rem;font-weight:800;text-transform:uppercase;}
+
+/* TABS */
+.tabs{width:100%;max-width:430px;display:flex;border-bottom:1px solid var(--borda);background:var(--surface);}
+.tab-btn{flex:1;padding:10px 0;font-family:'Montserrat',sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
+.tab-btn.ativo{color:var(--am);border-bottom-color:var(--am);}
+.notif{display:inline-block;background:var(--dir);color:#fff;font-size:.52rem;border-radius:8px;padding:1px 5px;margin-left:3px;vertical-align:middle;}
+
+/* CORPO */
+.tela{width:100%;max-width:430px;padding:13px 14px 120px;display:none;flex-direction:column;gap:11px;}
+.tela.ativa{display:flex;}
+
+/* UTIL */
+.sec{font-size:.57rem;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);display:flex;align-items:center;gap:7px;}
+.sec::after{content:'';flex:1;height:1px;background:var(--borda);}
+.sbar{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--borda);border-radius:10px;padding:8px 13px;}
+.sbar-l{display:flex;align-items:center;gap:6px;font-size:.7rem;color:var(--muted);}
+.dot-g{width:7px;height:7px;border-radius:50%;background:#66bb6a;box-shadow:0 0 5px #66bb6a;animation:pl 2s infinite;}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:.3}}
+.hora{font-family:'Share Tech Mono',monospace;font-size:.74rem;color:var(--am);}
+
+/* CANAL ATIVO */
+.ca-box{background:var(--surface);border:1px solid var(--borda);border-left:4px solid var(--am);border-radius:12px;padding:11px 14px;transition:border-left-color .2s;}
+.ca-lbl{font-size:.56rem;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);margin-bottom:4px;}
+.ca-nome{font-size:.95rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;display:flex;align-items:center;gap:7px;}
+.ca-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;transition:all .2s;}
+
+/* WAVEFORM */
+.wf{background:#e8e8e8;border:1px solid var(--borda);border-radius:10px;height:50px;display:flex;align-items:center;justify-content:center;gap:3px;padding:10px 13px;position:relative;overflow:hidden;}
+.wf-idle{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:#aaa;}
+.wbar{width:3px;border-radius:2px;background:var(--am);box-shadow:0 0 4px var(--am);display:none;animation:wv .65s ease-in-out infinite alternate;}
+.wbar:nth-child(2){height:8px;animation-delay:.00s}.wbar:nth-child(3){height:22px;animation-delay:.06s}.wbar:nth-child(4){height:36px;animation-delay:.12s}.wbar:nth-child(5){height:26px;animation-delay:.18s}.wbar:nth-child(6){height:40px;animation-delay:.24s}.wbar:nth-child(7){height:30px;animation-delay:.30s}.wbar:nth-child(8){height:18px;animation-delay:.36s}.wbar:nth-child(9){height:34px;animation-delay:.42s}.wbar:nth-child(10){height:24px;animation-delay:.48s}.wbar:nth-child(11){height:12px;animation-delay:.54s}.wbar:nth-child(12){height:28px;animation-delay:.60s}.wbar:nth-child(13){height:10px;animation-delay:.66s}
+@keyframes wv{from{transform:scaleY(.3);opacity:.5}to{transform:scaleY(1);opacity:1}}
+.live-tag{position:absolute;top:6px;right:9px;font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--am);display:none;animation:blink 1s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* TRANSCRIÇÃO */
+.transc-box{background:var(--surface);border:1px solid var(--borda);border-radius:10px;padding:9px 13px;display:none;flex-direction:column;gap:4px;}
+.transc-box.vis{display:flex;}
+.transc-lbl{font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);display:flex;align-items:center;gap:5px;}
+.tdot{width:6px;height:6px;border-radius:50%;background:#66bb6a;box-shadow:0 0 4px #66bb6a;animation:pl 1s infinite;}
+.transc-quem{font-size:.66rem;color:var(--muted);font-weight:700;}
+.transc-txt{font-size:.8rem;color:var(--txt);line-height:1.4;min-height:1.1em;}
+.transc-txt .cur{display:inline-block;width:2px;height:.85em;background:var(--am);margin-left:2px;vertical-align:middle;animation:blink .7s step-end infinite;}
+
+/* CANAIS */
+.ch-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ch{background:var(--card);border:1px solid var(--borda);border-radius:12px;padding:11px 11px;cursor:pointer;transition:all .15s;position:relative;display:flex;flex-direction:column;gap:4px;}
+.ch.sel{border-color:var(--cor);background:color-mix(in srgb,var(--cor) 10%,var(--card));}
+.ch-icon{font-size:1rem;}
+.ch-nome{font-size:.76rem;font-weight:800;text-transform:uppercase;}
+.ch-info{font-size:.63rem;color:var(--muted);display:flex;align-items:center;gap:4px;}
+.ch-pip{width:5px;height:5px;border-radius:50%;background:var(--cor,#999);}
+.ch-bdg{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--cor);box-shadow:0 0 6px var(--cor);display:none;}
+.ch.sel .ch-bdg{display:block;}
+
+/* CHAMADOS RÁPIDOS */
+.chamados-grid{display:flex;flex-direction:column;gap:8px;}
+.chamado-btn{background:var(--surface);border:1px solid var(--borda);border-radius:12px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .15s;text-align:left;width:100%;font-family:'Montserrat',sans-serif;}
+.chamado-btn:active{transform:scale(.98);}
+.chamado-ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;}
+.chamado-body{flex:1;}
+.chamado-titulo{font-size:.8rem;font-weight:800;color:var(--txt);}
+.chamado-desc{font-size:.65rem;color:var(--muted);margin-top:2px;}
+.chamado-seta{color:var(--muted);font-size:.85rem;flex-shrink:0;}
+
+/* STATUS CHAMADO */
+.status-chamado{display:none;border-radius:12px;padding:11px 14px;border:1px solid;align-items:center;gap:10px;}
+.status-chamado.vis{display:flex;}
+.sc-icon{font-size:1.3rem;}
+.sc-body{flex:1;}
+.sc-titulo{font-size:.78rem;font-weight:800;}
+.sc-desc{font-size:.66rem;color:var(--muted);margin-top:2px;}
+.sc-cancel{background:none;border:1px solid var(--borda);border-radius:8px;padding:4px 9px;font-size:.6rem;font-weight:700;color:var(--muted);cursor:pointer;font-family:'Montserrat',sans-serif;}
+
+/* FILA DE CHAMADOS */
+.chamado-card{background:var(--surface);border:1px solid var(--borda);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
+.chamado-card-topo{display:flex;align-items:center;gap:10px;}
+.cc-ic{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;}
+.cc-body{flex:1;}
+.cc-titulo{font-size:.78rem;font-weight:800;}
+.cc-meta{font-size:.63rem;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px;}
+.cc-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.cc-acoes{display:flex;gap:7px;}
+.btn-aceitar{flex:1;padding:8px;border-radius:9px;border:none;background:var(--am);color:#1a1a1a;font-family:'Montserrat',sans-serif;font-size:.7rem;font-weight:800;cursor:pointer;transition:all .15s;}
+.btn-aceitar:active{transform:scale(.96);}
+.btn-recusar{padding:8px 12px;border-radius:9px;border:1px solid var(--borda);background:none;font-family:'Montserrat',sans-serif;font-size:.7rem;font-weight:700;color:var(--muted);cursor:pointer;}
+.chamado-card.aceito{border-color:#66bb6a;background:color-mix(in srgb,#66bb6a 6%,var(--surface));}
+.tag-aceito{display:inline-flex;align-items:center;gap:4px;font-size:.65rem;font-weight:700;color:#66bb6a;}
+
+/* PTT */
+.ptt-wrap{position:fixed;bottom:0;left:0;right:0;padding:10px 20px 26px;background:linear-gradient(to top,#f5f5f5 55%,transparent);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:10;}
+.ptt-hint{font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.12em;color:#888;}
+.ptt-btn{width:82px;height:82px;border-radius:50%;border:3px solid var(--am);background:radial-gradient(circle at 40% 35%,#3a3000,#1a1800);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;box-shadow:0 0 0 5px rgba(245,200,0,.12),0 5px 24px rgba(0,0,0,.5);transition:all .1s;user-select:none;-webkit-user-select:none;touch-action:none;}
+.ptt-btn.on{background:radial-gradient(circle at 40% 35%,#4a3a00,#251d00);border-color:var(--am2);box-shadow:0 0 0 11px rgba(245,200,0,.22),0 0 36px rgba(245,200,0,.28);transform:scale(.93);}
+.ptt-mic{font-size:1.5rem;}
+.ptt-lbl{font-family:'Share Tech Mono',monospace;font-size:.5rem;letter-spacing:.13em;color:var(--am);font-weight:700;}
+.ptt-timer{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--am);min-height:1em;}
+
+/* LOG */
+.log-box{background:var(--surface);border:1px solid var(--borda);border-radius:12px;overflow:hidden;}
+.log-item{display:flex;flex-direction:column;gap:5px;padding:9px 13px;border-bottom:1px solid var(--borda);}
+.log-item:last-child{border-bottom:none;}
+.log-topo{display:flex;align-items:center;gap:10px;}
+.log-av{width:26px;height:26px;border-radius:50%;flex-shrink:0;font-size:.58rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.log-who{font-size:.74rem;font-weight:700;}
+.log-meta{font-size:.63rem;color:var(--muted);margin-top:1px;display:flex;align-items:center;gap:4px;}
+.log-cdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.log-dur{font-family:'Share Tech Mono',monospace;font-size:.63rem;color:var(--muted);margin-left:auto;}
+.log-transc{font-size:.74rem;color:#555;line-height:1.4;padding:5px 9px;background:color-mix(in srgb,var(--am) 7%,var(--card));border-radius:7px;border-left:3px solid color-mix(in srgb,var(--am) 35%,transparent);}
+
+/* CHAT */
+#tela-chat{width:100%;max-width:430px;padding:0;height:calc(100vh - 88px);display:none;flex-direction:column;}
+#tela-chat.ativa{display:flex;}
+.conv-lista{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:2px;}
+.conv-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;cursor:pointer;transition:background .15s;}
+.conv-item:hover{background:var(--card);}
+.conv-av{width:40px;height:40px;border-radius:50%;flex-shrink:0;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;position:relative;}
+.conv-av .spip{position:absolute;bottom:1px;right:1px;width:9px;height:9px;border-radius:50%;border:2px solid var(--bg);}
+.conv-body{flex:1;min-width:0;}
+.conv-nome{font-size:.79rem;font-weight:700;}
+.conv-prev{font-size:.67rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.conv-hora{font-size:.6rem;color:var(--muted);}
+.conv-unread{background:var(--am);color:#1a1a1a;font-size:.58rem;font-weight:900;border-radius:10px;padding:1px 6px;}
+#chat-janela{display:none;position:fixed;inset:0;background:var(--bg);z-index:50;flex-direction:column;}
+.chat-hdr{background:var(--surface);border-bottom:1px solid var(--borda);padding:11px 15px;display:flex;align-items:center;gap:11px;}
+.btn-back{background:none;border:none;color:var(--am);font-size:1rem;cursor:pointer;padding:3px;}
+.chat-hdr-av{width:34px;height:34px;border-radius:50%;flex-shrink:0;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.chat-hdr-info{flex:1;}
+.chat-hdr-nome{font-size:.85rem;font-weight:800;}
+.chat-hdr-status{font-size:.62rem;color:var(--muted);margin-top:1px;}
+.btn-ligar{background:var(--am);border:none;border-radius:20px;padding:5px 11px;font-family:'Montserrat',sans-serif;font-size:.62rem;font-weight:800;color:#1a1a1a;cursor:pointer;}
+.msgs{flex:1;overflow-y:auto;padding:13px 14px;display:flex;flex-direction:column;gap:7px;background:#f0f0f0;}
+.msg{max-width:78%;display:flex;flex-direction:column;gap:2px;}
+.msg.eu{align-self:flex-end;align-items:flex-end;}
+.msg.outro{align-self:flex-start;align-items:flex-start;}
+.msg-bubble{padding:8px 11px;border-radius:13px;font-size:.78rem;line-height:1.4;}
+.msg.eu .msg-bubble{background:color-mix(in srgb,var(--am) 20%,#fff);border-bottom-right-radius:3px;}
+.msg.outro .msg-bubble{background:#fff;border-bottom-left-radius:3px;}
+.msg-hora{font-size:.56rem;color:var(--muted);}
+.msg-audio{display:flex;align-items:center;gap:7px;padding:7px 11px;border-radius:13px;background:#fff;}
+.msg.eu .msg-audio{background:color-mix(in srgb,var(--am) 20%,#fff);}
+.play-btn{width:26px;height:26px;border-radius:50%;background:var(--am);border:none;cursor:pointer;font-size:.75rem;flex-shrink:0;}
+.msg-recado{background:color-mix(in srgb,var(--am) 12%,#fff);border:1px dashed color-mix(in srgb,var(--am) 40%,transparent);border-radius:11px;padding:9px 12px;font-size:.74rem;display:flex;flex-direction:column;gap:3px;}
+.msg-recado .rtag{font-size:.56rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--am);}
+.dia-sep{text-align:center;font-size:.6rem;color:var(--muted);font-family:'Share Tech Mono',monospace;margin:3px 0;}
+.chat-input-area{background:var(--surface);border-top:1px solid var(--borda);padding:9px 13px;display:flex;align-items:center;gap:7px;}
+.chat-input{flex:1;background:var(--card);border:1px solid var(--borda);border-radius:20px;padding:8px 13px;color:var(--txt);font-family:'Montserrat',sans-serif;font-size:.79rem;outline:none;}
+.chat-input:focus{border-color:var(--am);}
+.btn-send{width:36px;height:36px;border-radius:50%;background:var(--am);border:none;cursor:pointer;font-size:.9rem;flex-shrink:0;}
+.btn-ptt-mini{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--borda);cursor:pointer;font-size:.9rem;flex-shrink:0;user-select:none;touch-action:none;}
+.btn-ptt-mini.on{background:var(--am);border-color:var(--am);}
+.btn-recado{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--borda);cursor:pointer;font-size:.88rem;flex-shrink:0;}
+
+/* TOAST */
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:.72rem;font-weight:700;padding:8px 16px;border-radius:20px;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="tela-login">
+  <div class="login-logo">
+    <div style="font-size:2.5rem;">📡</div>
+    <div class="titulo">Santa Mônica</div>
+    <div class="sub">● SISTEMA DE COMUNICAÇÃO INTERNO</div>
+  </div>
+  <div class="login-form">
+    <div>
+      <div class="field-label">Seu nome</div>
+      <input type="text" id="inp-nome" placeholder="Ex: Ana Paula" maxlength="30"/>
+    </div>
+    <div>
+      <div class="field-label">Unidade</div>
+      <div class="unid-grid">
+        <div class="unid-btn sel" data-unid="Centro" onclick="selUnid(this)"><span class="ui">🏫</span><span class="un">Centro</span></div>
+        <div class="unid-btn" data-unid="Corujinha" onclick="selUnid(this)"><span class="ui">🦉</span><span class="un">Corujinha</span></div>
+        <div class="unid-btn" data-unid="Laranjal" onclick="selUnid(this)"><span class="ui">🌳</span><span class="un">Laranjal</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="field-label">Seu perfil</div>
+      <div class="perfil-grid">
+        <div class="perfil-btn sel" data-perfil="professor" style="--cor:#66bb6a" onclick="selPerfil(this)">
+          <span class="pi">📚</span><div class="pt"><span class="pn">Professor</span><span class="pd">Envia chamados</span></div>
+        </div>
+        <div class="perfil-btn" data-perfil="monitor" style="--cor:#26C6DA" onclick="selPerfil(this)">
+          <span class="pi">🙋</span><div class="pt"><span class="pn">Monitor</span><span class="pd">Acompanhamento</span></div>
+        </div>
+        <div class="perfil-btn" data-perfil="manutencao" style="--cor:#ab47bc" onclick="selPerfil(this)">
+          <span class="pi">🔧</span><div class="pt"><span class="pn">Manutenção</span><span class="pd">Chamados técnicos</span></div>
+        </div>
+        <div class="perfil-btn" data-perfil="funcionario" style="--cor:#ffa726" onclick="selPerfil(this)">
+          <span class="pi">👷</span><div class="pt"><span class="pn">Funcionário</span><span class="pd">PTT geral</span></div>
+        </div>
+        <div class="perfil-btn" data-perfil="direcao" style="--cor:#ef5350" onclick="selPerfil(this)">
+          <span class="pi">🏛️</span><div class="pt"><span class="pn">Direção</span><span class="pd">Acesso total</span></div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-entrar" onclick="entrar()">Entrar no sistema</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="logo-area">
+      <div class="logo-ic">📡</div>
+      <div class="logo-text">
+        <div class="escola">Escola</div>
+        <div class="nome">Santa Mônica</div>
+        <div class="rtag" id="hdr-tag">● SCI · CENTRO</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="perfil-pill" id="hdr-perfil-pill">📚 Professor</div>
+      <div class="unid-badge" id="hdr-badge" onclick="voltarLogin()">Centro ↩</div>
+      <div class="av" id="hdr-av">AP</div>
+    </div>
+  </header>
+
+  <div class="tabs" id="tabs-bar">
+    <button class="tab-btn ativo" onclick="trocarTab('radio',this)" id="tab-radio">📡 Rádio</button>
+    <button class="tab-btn" onclick="trocarTab('chamados',this)" id="tab-chamados">🔔 Chamados <span class="notif" id="notif-chamados" style="display:none"></span></button>
+    <button class="tab-btn" onclick="trocarTab('chat',this)" id="tab-chat">💬 Chat</button>
+  </div>
+
+  <!-- ABA RÁDIO -->
+  <div class="tela ativa" id="tela-radio">
+    <div class="sbar">
+      <div class="sbar-l"><div class="dot-g"></div><span id="online-count">0 online</span></div>
+      <div class="hora" id="relogio">--:--</div>
+    </div>
+
+    <div class="ca-box" id="ca-box">
+      <div class="ca-lbl">Canal ativo</div>
+      <div class="ca-nome">
+        <span class="ca-dot" id="ca-dot" style="background:#2196F3;box-shadow:0 0 6px #2196F3"></span>
+        <span id="ca-nome-txt">Canal Geral</span>
+      </div>
+    </div>
+
+    <div class="wf" id="waveform">
+      <span class="wf-idle" id="wf-idle">— aguardando transmissão —</span>
+      <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
+      <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
+      <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
+      <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
+      <span class="live-tag" id="live-tag">● AO VIVO</span>
+    </div>
+
+    <div class="transc-box" id="transc-box">
+      <div class="transc-lbl"><span class="tdot"></span> Transcrição em tempo real</div>
+      <div class="transc-quem" id="transc-quem"></div>
+      <div class="transc-txt" id="transc-txt"><span class="cur"></span></div>
+    </div>
+
+    <div class="sec">Canais</div>
+    <div class="ch-grid">
+      <div class="ch sel" style="--cor:#2196F3" onclick="trocarCanal(this,'Canal Geral','#2196F3')">
+        <div class="ch-bdg"></div><div class="ch-icon">📡</div>
+        <div class="ch-nome">Geral</div>
+        <div class="ch-info"><div class="ch-pip"></div><span id="ol-geral">0</span> online</div>
+      </div>
+      <div class="ch" style="--cor:#ef5350" onclick="trocarCanal(this,'Direção','#ef5350')">
+        <div class="ch-bdg"></div><div class="ch-icon">🏛️</div>
+        <div class="ch-nome">Direção</div>
+        <div class="ch-info"><div class="ch-pip"></div><span id="ol-direcao">0</span> online</div>
+      </div>
+      <div class="ch" style="--cor:#66bb6a" onclick="trocarCanal(this,'Professores','#66bb6a')">
+        <div class="ch-bdg"></div><div class="ch-icon">📚</div>
+        <div class="ch-nome">Professores</div>
+        <div class="ch-info"><div class="ch-pip"></div><span id="ol-prof">0</span> online</div>
+      </div>
+      <div class="ch" style="--cor:#ffa726" onclick="trocarCanal(this,'Funcionários','#ffa726')">
+        <div class="ch-bdg"></div><div class="ch-icon">🔧</div>
+        <div class="ch-nome">Funcionários</div>
+        <div class="ch-info"><div class="ch-pip"></div><span id="ol-func">0</span> online</div>
+      </div>
+    </div>
+
+    <!-- Chamados rápidos (professor) -->
+    <div id="bloco-professor" style="display:none;flex-direction:column;gap:11px;">
+      <div class="sec">Chamados rápidos</div>
+      <div class="chamados-grid">
+        <button class="chamado-btn" onclick="enviarChamado('monitor','🚻','Acompanhar ao banheiro')">
+          <div class="chamado-ic" style="background:#e0f7fa;">🚻</div>
+          <div class="chamado-body"><div class="chamado-titulo">Acompanhar ao banheiro</div><div class="chamado-desc">Solicita monitor para acompanhar aluno</div></div>
+          <span class="chamado-seta">›</span>
+        </button>
+        <button class="chamado-btn" onclick="enviarChamado('monitor','🙋','Suporte em sala')">
+          <div class="chamado-ic" style="background:#e8f5e9;">🙋</div>
+          <div class="chamado-body"><div class="chamado-titulo">Suporte em sala</div><div class="chamado-desc">Monitor para auxiliar com aluno</div></div>
+          <span class="chamado-seta">›</span>
+        </button>
+        <button class="chamado-btn" onclick="enviarChamado('manutencao','❄️','Ar-condicionado com problema')">
+          <div class="chamado-ic" style="background:#f3e5f5;">❄️</div>
+          <div class="chamado-body"><div class="chamado-titulo">Ar-condicionado</div><div class="chamado-desc">Não liga, barulho ou temperatura</div></div>
+          <span class="chamado-seta">›</span>
+        </button>
+        <button class="chamado-btn" onclick="enviarChamado('manutencao','💡','Lâmpada queimada')">
+          <div class="chamado-ic" style="background:#fff8e1;">💡</div>
+          <div class="chamado-body"><div class="chamado-titulo">Luz queimada</div><div class="chamado-desc">Lâmpada ou instalação elétrica</div></div>
+          <span class="chamado-seta">›</span>
+        </button>
+        <button class="chamado-btn" onclick="enviarChamado('manutencao','🪟','Janela com problema')">
+          <div class="chamado-ic" style="background:#e8eaf6;">🪟</div>
+          <div class="chamado-body"><div class="chamado-titulo">Janela / porta</div><div class="chamado-desc">Não abre, não fecha, danificada</div></div>
+          <span class="chamado-seta">›</span>
+        </button>
+        <button class="chamado-btn" onclick="enviarChamado('direcao','🚨','Ocorrência com aluno')">
+          <div class="chamado-ic" style="background:#ffebee;">🚨</div>
+          <div class="chamado-body"><div class="chamado-titulo">Ocorrência</div><div class="chamado-desc">Acidente, indisposição ou conflito</div></div>
+          <span class="chamado-seta">›</span>
+        </button>
+      </div>
+      <div class="status-chamado" id="status-chamado">
+        <span class="sc-icon" id="sc-icon">📡</span>
+        <div class="sc-body">
+          <div class="sc-titulo" id="sc-titulo">Chamado enviado</div>
+          <div class="sc-desc" id="sc-desc">Aguardando confirmação...</div>
+        </div>
+        <button class="sc-cancel" onclick="cancelarChamado()">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- Log de transmissões -->
+    <div id="bloco-log">
+      <div class="sec" style="margin-bottom:8px;">Últimas transmissões</div>
+      <div class="log-box" id="log-box">
+        <div style="padding:20px;text-align:center;font-size:.7rem;color:#aaa;font-family:'Share Tech Mono',monospace;">
+          — nenhuma transmissão ainda —
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABA CHAMADOS -->
+  <div class="tela" id="tela-chamados">
+    <div class="sec">Pendentes</div>
+    <div id="chamados-list">
+      <div id="chamados-empty" style="padding:20px;text-align:center;font-size:.72rem;color:#aaa;">
+        Nenhum chamado pendente
+      </div>
+    </div>
+    <div class="sec" id="sec-concluidos" style="display:none;">Concluídos hoje</div>
+    <div id="chamados-concluidos" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+
+  <!-- ABA CHAT -->
+  <div id="tela-chat">
+    <div class="conv-lista" id="conv-lista">
+      <div style="padding:30px;text-align:center;font-size:.72rem;color:#aaa;">
+        Nenhum usuário online na unidade
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Janela de conversa -->
+<div id="chat-janela">
+  <div class="chat-hdr">
+    <button class="btn-back" onclick="fecharJanela()">←</button>
+    <div class="chat-hdr-av" id="j-av"></div>
+    <div class="chat-hdr-info">
+      <div class="chat-hdr-nome" id="j-nome"></div>
+      <div class="chat-hdr-status" id="j-status"></div>
+    </div>
+    <button class="btn-ligar" onclick="chamarNoRadio()">📡 Chamar</button>
+  </div>
+  <div class="msgs" id="msgs-area"></div>
+  <div class="chat-input-area">
+    <button class="btn-recado" title="Recado" onclick="deixarRecado()">📌</button>
+    <button class="btn-ptt-mini" id="ptt-mini"
+      onmousedown="pttMiniOn(event)" onmouseup="pttMiniOff()"
+      ontouchstart="pttMiniOn(event)" ontouchend="pttMiniOff()">🎙️</button>
+    <input class="chat-input" id="chat-input" placeholder="Mensagem..."
+      onkeydown="if(event.key==='Enter')enviarMsg()"/>
+    <button class="btn-send" onclick="enviarMsg()">➤</button>
+  </div>
+</div>
+
+<!-- PTT fixo -->
+<div class="ptt-wrap" id="ptt-wrap">
+  <div class="ptt-hint" id="ptt-hint">SEGURE PARA FALAR</div>
+  <button class="ptt-btn" id="ptt-btn"
+    onmousedown="iniciarPTT(event)" onmouseup="pararPTT()"
+    ontouchstart="iniciarPTT(event)" ontouchend="pararPTT()">
+    <span class="ptt-mic">🎙️</span>
+    <span class="ptt-lbl">PTT</span>
+  </button>
+  <div class="ptt-timer" id="ptt-timer"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── ESTADO GLOBAL ──
+let ws = null;
+let myId = null, myName = '', myUnit = 'Centro', myProfile = 'professor';
+let unidSel = 'Centro', perfilSel = 'professor';
+let currentChannel = 'Canal Geral';
+let usuarios = {};       // id → {id, name, profile, channel}
+let chamadosPend = {};   // id → chamado
+let chatHistory = {};    // userId → [{t, txt, h, ...}]
+let convAtual = null;
+
+// PTT transmissão
+let pttStream = null, mediaRecorder = null, audioChunks = [];
+let pttTimerInterval = null, pttSec = 0, pttMimeType = '';
+
+// PTT recepção
+let incomingPTT = null; // {userId, userName, mimeType, audioBuffer, transcription, stopped}
+
+// Transcrição
+let recognition = null, currentTranscript = '';
+
+// PTT mini (chat)
+let miniStream = null, miniRecorder = null, miniChunks = [];
+
+const PERFIS = {
+  professor:   {label:'📚 Professor',  cor:'#66bb6a', showPTT:true,  showChamados:true,  tabLabel:'🔔 Solicitar'},
+  monitor:     {label:'🙋 Monitor',    cor:'#26C6DA', showPTT:true,  showChamados:true,  tabLabel:'🔔 Chamados'},
+  manutencao:  {label:'🔧 Manutenção', cor:'#ab47bc', showPTT:true,  showChamados:true,  tabLabel:'🔧 Técnicos'},
+  funcionario: {label:'👷 Funcionário',cor:'#ffa726', showPTT:true,  showChamados:false, tabLabel:''},
+  direcao:     {label:'🏛️ Direção',   cor:'#ef5350', showPTT:true,  showChamados:true,  tabLabel:'🔔 Chamados'},
+};
+
+// ── LOGIN ──
+function selUnid(el) {
+  document.querySelectorAll('.unid-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+  unidSel = el.dataset.unid;
+}
+
+function selPerfil(el) {
+  document.querySelectorAll('.perfil-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+  perfilSel = el.dataset.perfil;
+}
+
+function entrar() {
+  const nome = document.getElementById('inp-nome').value.trim();
+  if (!nome) { toast('Digite seu nome para entrar'); return; }
+  myName = nome;
+  myUnit = unidSel;
+  myProfile = perfilSel;
+  const ini = myName.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
+  const p = PERFIS[myProfile];
+
+  document.getElementById('hdr-av').textContent = ini;
+  document.getElementById('hdr-badge').textContent = myUnit + ' ↩';
+  document.getElementById('hdr-tag').textContent = '● SCI · ' + myUnit.toUpperCase();
+  const pill = document.getElementById('hdr-perfil-pill');
+  pill.textContent = p.label;
+  pill.style.cssText += `;background:color-mix(in srgb,${p.cor} 15%,transparent);color:${p.cor};border:1px solid color-mix(in srgb,${p.cor} 30%,transparent)`;
+
+  document.getElementById('ptt-wrap').style.display = p.showPTT ? 'flex' : 'none';
+  document.getElementById('bloco-professor').style.display = myProfile === 'professor' ? 'flex' : 'none';
+  document.getElementById('bloco-log').style.display = myProfile === 'professor' ? 'none' : 'block';
+
+  const tabC = document.getElementById('tab-chamados');
+  if (!p.showChamados) {
+    tabC.style.display = 'none';
+  } else {
+    tabC.style.display = '';
+    tabC.childNodes[0].textContent = p.tabLabel + ' ';
+  }
+
+  document.getElementById('tela-login').style.display = 'none';
+  const app = document.getElementById('app');
+  app.style.cssText = 'display:flex;flex-direction:column;align-items:center;width:100%';
+
+  atualizarRelogio();
+  conectarWS();
+}
+
+function voltarLogin() {
+  pararPTT();
+  if (ws) { ws.onclose = null; ws.close(); ws = null; }
+  document.getElementById('tela-login').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+// ── WEBSOCKET ──
+function conectarWS() {
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${proto}//${location.host}`);
+  ws.binaryType = 'arraybuffer';
+
+  ws.onopen = () => {
+    ws.send(JSON.stringify({ type:'login', name:myName, unit:myUnit, profile:myProfile }));
+  };
+
+  ws.onmessage = (ev) => {
+    if (ev.data instanceof ArrayBuffer) { receberAudio(ev.data); return; }
+    try { handleMsg(JSON.parse(ev.data)); } catch(e) { console.error(e); }
+  };
+
+  ws.onclose = () => {
+    if (document.getElementById('app').style.display !== 'none') {
+      setTimeout(conectarWS, 3000);
+    }
+  };
+
+  ws.onerror = () => {};
+}
+
+function enviar(obj) {
+  if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj));
+}
+
+function handleMsg(msg) {
+  switch (msg.type) {
+    case 'welcome':
+      myId = msg.id;
+      atualizarUsuarios(msg.users, msg.channelCounts, msg.onlineCount);
+      break;
+    case 'users_update':
+      atualizarUsuarios(msg.users, msg.channelCounts, msg.onlineCount);
+      break;
+    case 'ptt_start':   onPTTStart(msg); break;
+    case 'ptt_stop':    onPTTStop(msg);  break;
+    case 'chat_msg':    onChatMsg(msg);  break;
+    case 'chamado_new':      onChamadoNew(msg);      break;
+    case 'chamado_sent':     onChamadoSent(msg);     break;
+    case 'chamado_accepted': onChamadoAccepted(msg); break;
+    case 'chamado_rejected': onChamadoRejected(msg); break;
+  }
+}
+
+// ── ONLINE / CANAIS ──
+function atualizarUsuarios(users, channelCounts, onlineCount) {
+  usuarios = {};
+  (users || []).forEach(u => { if (u.id !== myId) usuarios[u.id] = u; });
+  document.getElementById('online-count').textContent = (onlineCount || 0) + ' online';
+  const cc = channelCounts || {};
+  document.getElementById('ol-geral').textContent   = cc['Canal Geral']    || cc['Geral']        || 0;
+  document.getElementById('ol-direcao').textContent = cc['Direção']         || 0;
+  document.getElementById('ol-prof').textContent    = cc['Professores']     || 0;
+  document.getElementById('ol-func').textContent    = cc['Funcionários']    || 0;
+  renderConvs();
+}
+
+// ── TABS ──
+function trocarTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+  const pttW = document.getElementById('ptt-wrap');
+  if (tab === 'radio') {
+    document.getElementById('tela-radio').classList.add('ativa');
+    pttW.style.display = PERFIS[myProfile].showPTT ? 'flex' : 'none';
+  } else if (tab === 'chamados') {
+    document.getElementById('tela-chamados').classList.add('ativa');
+    pttW.style.display = 'none';
+  } else if (tab === 'chat') {
+    document.getElementById('tela-chat').classList.add('ativa');
+    pttW.style.display = 'none';
+  }
+}
+
+// ── CANAL ──
+function trocarCanal(el, nome, cor) {
+  document.querySelectorAll('.ch').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  currentChannel = nome;
+  document.getElementById('ca-nome-txt').textContent = nome;
+  const dot = document.getElementById('ca-dot');
+  dot.style.background = cor;
+  dot.style.boxShadow = '0 0 6px ' + cor;
+  document.getElementById('ca-box').style.borderLeftColor = cor;
+  enviar({ type:'channel_change', channel:nome });
+}
+
+// ── PTT TRANSMISSÃO ──
+function getMime() {
+  const types = ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg','audio/mp4'];
+  for (const t of types) if (MediaRecorder.isTypeSupported(t)) return t;
+  return '';
+}
+
+async function iniciarPTT(e) {
+  if (e) e.preventDefault();
+  if (pttStream) return;
+  try {
+    pttStream = await navigator.mediaDevices.getUserMedia({ audio:true });
+  } catch {
+    toast('Permita acesso ao microfone nas configurações do navegador');
+    return;
+  }
+  pttMimeType = getMime();
+  mediaRecorder = new MediaRecorder(pttStream, pttMimeType ? {mimeType:pttMimeType} : {});
+  audioChunks = [];
+  mediaRecorder.ondataavailable = ev => { if (ev.data.size > 0) audioChunks.push(ev.data); };
+  mediaRecorder.start();
+
+  pttSec = 0;
+  document.getElementById('ptt-timer').textContent = '0s';
+  pttTimerInterval = setInterval(() => {
+    pttSec++;
+    document.getElementById('ptt-timer').textContent = pttSec + 's';
+  }, 1000);
+
+  document.getElementById('ptt-btn').classList.add('on');
+  document.getElementById('ptt-hint').textContent = '● TRANSMITINDO...';
+  waveformOn(true);
+
+  currentTranscript = '';
+  document.getElementById('transc-quem').textContent = myName + ' · ' + currentChannel;
+  document.getElementById('transc-txt').innerHTML = '<span class="cur"></span>';
+  document.getElementById('transc-box').classList.add('vis');
+
+  enviar({ type:'ptt_start', mimeType: mediaRecorder.mimeType });
+  iniciarTranscricao();
+}
+
+function pararPTT() {
+  if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+  clearInterval(pttTimerInterval);
+  if (recognition) { try { recognition.stop(); } catch{} recognition = null; }
+
+  mediaRecorder.onstop = async () => {
+    const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+    enviar({ type:'ptt_stop', mimeType:blob.type, transcription:currentTranscript });
+    if (ws && ws.readyState === 1) ws.send(await blob.arrayBuffer());
+    pttStream.getTracks().forEach(t => t.stop());
+    pttStream = null; audioChunks = [];
+  };
+  mediaRecorder.stop();
+
+  document.getElementById('ptt-btn').classList.remove('on');
+  document.getElementById('ptt-hint').textContent = 'SEGURE PARA FALAR';
+  waveformOn(false);
+  document.getElementById('ptt-timer').textContent = pttSec > 0 ? '✓ ' + pttSec + 's' : '';
+  setTimeout(() => document.getElementById('transc-box').classList.remove('vis'), 4000);
+}
+
+function waveformOn(on) {
+  document.getElementById('wf-idle').style.display = on ? 'none' : 'block';
+  document.getElementById('live-tag').style.display = on ? 'block' : 'none';
+  document.querySelectorAll('.wbar').forEach(b => b.style.display = on ? 'block' : 'none');
+}
+
+// ── TRANSCRIÇÃO ──
+function iniciarTranscricao() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  try {
+    recognition = new SR();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.onresult = e => {
+      let txt = '';
+      for (let i = e.resultIndex; i < e.results.length; i++)
+        txt += e.results[i][0].transcript;
+      currentTranscript = txt.trim();
+      document.getElementById('transc-txt').innerHTML = currentTranscript + '<span class="cur"></span>';
+    };
+    recognition.onerror = () => {};
+    recognition.start();
+  } catch {}
+}
+
+// ── PTT RECEPÇÃO ──
+function onPTTStart(msg) {
+  incomingPTT = { userId:msg.userId, userName:msg.userName,
+    mimeType: msg.mimeType || 'audio/webm',
+    audioBuffer:null, transcription:null, stopped:false };
+  waveformOn(true);
+  document.getElementById('transc-quem').textContent = msg.userName + ' · ' + msg.channel;
+  document.getElementById('transc-txt').innerHTML = '<span class="cur"></span>';
+  document.getElementById('transc-box').classList.add('vis');
+}
+
+function onPTTStop(msg) {
+  if (!incomingPTT || incomingPTT.userId !== msg.userId) return;
+  incomingPTT.stopped = true;
+  incomingPTT.transcription = msg.transcription;
+  incomingPTT.mimeType = msg.mimeType || incomingPTT.mimeType;
+  if (incomingPTT.audioBuffer !== null) {
+    reproduzirPTT(incomingPTT);
+    incomingPTT = null;
+  }
+}
+
+function receberAudio(buf) {
+  if (!incomingPTT) return;
+  incomingPTT.audioBuffer = buf;
+  if (incomingPTT.stopped) {
+    reproduzirPTT(incomingPTT);
+    incomingPTT = null;
+  }
+}
+
+function reproduzirPTT(ptt) {
+  const blob = new Blob([ptt.audioBuffer], { type: ptt.mimeType });
+  const url = URL.createObjectURL(blob);
+  const audio = new Audio(url);
+
+  if (ptt.transcription) {
+    document.getElementById('transc-quem').textContent = ptt.userName;
+    document.getElementById('transc-txt').textContent = ptt.transcription;
+    document.getElementById('transc-box').classList.add('vis');
+  }
+
+  audio.onended = () => {
+    URL.revokeObjectURL(url);
+    waveformOn(false);
+    adicionarLog(ptt.userName, ptt.transcription, Math.round(audio.duration || 0));
+    setTimeout(() => document.getElementById('transc-box').classList.remove('vis'), 3000);
+  };
+  audio.onerror = () => { URL.revokeObjectURL(url); waveformOn(false); };
+  audio.play().catch(() => { URL.revokeObjectURL(url); waveformOn(false); });
+}
+
+function adicionarLog(quem, transc, durSec) {
+  const box = document.getElementById('log-box');
+  const placeholder = box.querySelector('div[style]');
+  if (placeholder) placeholder.remove();
+  const ini = quem.split(' ').map(p => p[0]).join('').toUpperCase().slice(0,2);
+  const n = new Date();
+  const hora = `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+  const item = document.createElement('div');
+  item.className = 'log-item';
+  item.innerHTML = `
+    <div class="log-topo">
+      <div class="log-av" style="background:#2a2a2a;color:#ccc">${ini}</div>
+      <div style="flex:1">
+        <div class="log-who">${quem}</div>
+        <div class="log-meta"><div class="log-cdot" style="background:#888"></div>${currentChannel} · ${hora}</div>
+      </div>
+      <div class="log-dur">${durSec > 0 ? durSec+'s' : ''}</div>
+    </div>
+    ${transc ? `<div class="log-transc">💬 ${transc}</div>` : ''}
+  `;
+  box.prepend(item);
+  if (box.children.length > 15) box.lastElementChild.remove();
+}
+
+// ── CHAMADOS (PROFESSOR ENVIA) ──
+let pendingChamadoId = null, pendingChamadoTimer = null;
+
+function enviarChamado(targetProfile, icon, titulo) {
+  const sc = document.getElementById('status-chamado');
+  document.getElementById('sc-icon').textContent = icon;
+  document.getElementById('sc-titulo').textContent = titulo + ' — enviado!';
+  document.getElementById('sc-desc').textContent = '⏳ Aguardando confirmação...';
+  sc.style.cssText += ';display:flex;border-color:#ffa726;background:#fff8e1';
+  clearTimeout(pendingChamadoTimer);
+  pendingChamadoTimer = setTimeout(() => {
+    document.getElementById('sc-desc').textContent = 'Ninguém disponível no momento.';
+    sc.style.cssText += ';border-color:#ef5350;background:#ffebee';
+    pendingChamadoId = null;
+  }, 30000);
+  enviar({ type:'chamado_send', targetProfile, icon, titulo, descricao: myName });
+}
+
+function cancelarChamado() {
+  clearTimeout(pendingChamadoTimer);
+  pendingChamadoId = null;
+  document.getElementById('status-chamado').style.display = 'none';
+}
+
+function onChamadoSent(msg) {
+  pendingChamadoId = msg.chamadoId;
+}
+
+function onChamadoAccepted(msg) {
+  if (msg.chamadoId !== pendingChamadoId) return;
+  clearTimeout(pendingChamadoTimer);
+  const sc = document.getElementById('status-chamado');
+  document.getElementById('sc-titulo').textContent = '✓ Chamado aceito!';
+  document.getElementById('sc-desc').textContent = msg.byName + ' está a caminho.';
+  sc.style.cssText += ';border-color:#66bb6a;background:#f1f8e9';
+  pendingChamadoId = null;
+}
+
+function onChamadoRejected(msg) {
+  if (msg.chamadoId !== pendingChamadoId) return;
+  document.getElementById('sc-desc').textContent = 'Chamado recusado. Tente novamente.';
+  document.getElementById('status-chamado').style.cssText += ';border-color:#ef5350;background:#ffebee';
+}
+
+// ── CHAMADOS (MONITOR/MANUTENÇÃO RECEBE) ──
+function onChamadoNew(msg) {
+  chamadosPend[msg.id] = msg;
+  atualizarNotifChamados();
+
+  const empty = document.getElementById('chamados-empty');
+  if (empty) empty.remove();
+
+  const lista = document.getElementById('chamados-list');
+  const card = document.createElement('div');
+  card.className = 'chamado-card';
+  card.id = 'cc-' + msg.id;
+  card.innerHTML = `
+    <div class="chamado-card-topo">
+      <div class="cc-ic" style="background:#e0f7fa">${msg.icon}</div>
+      <div class="cc-body">
+        <div class="cc-titulo">${msg.titulo}</div>
+        <div class="cc-meta"><div class="cc-dot" style="background:#66bb6a"></div>${msg.fromName} · ${msg.hora}</div>
+      </div>
+    </div>
+    <div class="cc-acoes">
+      <button class="btn-aceitar" onclick="aceitarChamado('${msg.id}')">✓ Estou indo</button>
+      <button class="btn-recusar" onclick="recusarChamado('${msg.id}')">Ocupado</button>
+    </div>
+  `;
+  lista.prepend(card);
+  toast('📣 Chamado: ' + msg.titulo);
+}
+
+function aceitarChamado(id) {
+  const card = document.getElementById('cc-' + id);
+  if (!card) return;
+  card.classList.add('aceito');
+  card.querySelector('.cc-acoes').innerHTML = '<span class="tag-aceito">✓ Você está a caminho</span>';
+  delete chamadosPend[id];
+  atualizarNotifChamados();
+  moverParaConcluido(card);
+  enviar({ type:'chamado_accept', chamadoId:id });
+}
+
+function recusarChamado(id) {
+  const card = document.getElementById('cc-' + id);
+  if (!card) return;
+  card.style.opacity = '0.4';
+  setTimeout(() => card.remove(), 600);
+  delete chamadosPend[id];
+  atualizarNotifChamados();
+  enviar({ type:'chamado_reject', chamadoId:id });
+}
+
+function moverParaConcluido(card) {
+  const sec = document.getElementById('sec-concluidos');
+  const conc = document.getElementById('chamados-concluidos');
+  sec.style.display = '';
+  conc.style.display = 'flex';
+  setTimeout(() => conc.prepend(card), 650);
+}
+
+function atualizarNotifChamados() {
+  const count = Object.keys(chamadosPend).length;
+  const notif = document.getElementById('notif-chamados');
+  notif.textContent = count || '';
+  notif.style.display = count > 0 ? 'inline-block' : 'none';
+}
+
+// ── CHAT ──
+function renderConvs() {
+  const lista = document.getElementById('conv-lista');
+  lista.innerHTML = '';
+  const users = Object.values(usuarios);
+  if (!users.length) {
+    lista.innerHTML = '<div style="padding:30px;text-align:center;font-size:.72rem;color:#aaa;">Nenhum usuário online na unidade</div>';
+    return;
+  }
+  users.forEach(u => {
+    const hist = chatHistory[u.id] || [];
+    const last = hist[hist.length - 1];
+    const ini = u.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0,2);
+    const unread = (u._unread || 0);
+    const d = document.createElement('div');
+    d.className = 'conv-item';
+    d.onclick = () => abrirJanela(u);
+    d.innerHTML = `
+      <div class="conv-av" style="background:#2a2a2a;color:#ccc">
+        ${ini}
+        <div class="spip" style="background:#66bb6a"></div>
+      </div>
+      <div class="conv-body">
+        <div class="conv-nome">${u.name}</div>
+        <div class="conv-prev">${last ? (last.txt || '[áudio]') : 'Iniciar conversa'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <div class="conv-hora">${last ? last.h : ''}</div>
+        ${unread > 0 ? `<div class="conv-unread">${unread}</div>` : ''}
+      </div>
+    `;
+    lista.appendChild(d);
+  });
+}
+
+function abrirJanela(u) {
+  convAtual = u;
+  if (u._unread) { u._unread = 0; renderConvs(); }
+  const ini = u.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('j-av').textContent = ini;
+  document.getElementById('j-av').style.cssText = 'background:#2a2a2a;color:#ccc';
+  document.getElementById('j-nome').textContent = u.name;
+  document.getElementById('j-status').textContent = '● Online';
+  document.getElementById('j-status').style.color = '#66bb6a';
+  renderMsgs(u.id);
+  const j = document.getElementById('chat-janela');
+  j.style.cssText = 'display:flex;flex-direction:column';
+}
+
+function fecharJanela() {
+  document.getElementById('chat-janela').style.display = 'none';
+  convAtual = null;
+}
+
+function renderMsgs(uid) {
+  const area = document.getElementById('msgs-area');
+  area.innerHTML = '';
+  (chatHistory[uid] || []).forEach(m => {
+    const d = document.createElement('div');
+    if (m.t === 'dia') {
+      d.className = 'dia-sep'; d.textContent = m.txt;
+    } else if (m.t === 'recado') {
+      d.className = 'msg outro';
+      d.innerHTML = `<div class="msg-recado"><div class="rtag">📌 Recado de ${m.de}</div>${m.txt}</div><div class="msg-hora">${m.h}</div>`;
+    } else if (m.t === 'audio') {
+      d.className = 'msg ' + (m.eu ? 'eu' : 'outro');
+      d.innerHTML = `<div class="msg-audio"><button class="play-btn" onclick="playMsgAudio('${m.url}',this)">▶</button><span style="font-family:monospace;font-size:.7rem;color:#888">▬▬▬▬ ${m.dur||'0:??'}</span></div><div class="msg-hora">${m.h}</div>`;
+    } else {
+      d.className = 'msg ' + m.t;
+      d.innerHTML = `<div class="msg-bubble">${m.txt}</div><div class="msg-hora">${m.h}</div>`;
+    }
+    area.appendChild(d);
+  });
+  area.scrollTop = area.scrollHeight;
+}
+
+function onChatMsg(msg) {
+  const otherId = msg.fromId === myId ? msg.toId : msg.fromId;
+  if (!chatHistory[otherId]) chatHistory[otherId] = [];
+  const eu = msg.fromId === myId;
+  const h = msg.hora;
+
+  if (msg.msgType === 'text') {
+    chatHistory[otherId].push({ t: eu ? 'eu' : 'outro', txt: msg.text, h });
+  } else if (msg.msgType === 'note') {
+    chatHistory[otherId].push({ t:'recado', txt:msg.text, h, de:msg.fromName });
+  } else if (msg.msgType === 'audio' && msg.audioBase64) {
+    const blob = b64Blob(msg.audioBase64, msg.mimeType || 'audio/webm');
+    const url = URL.createObjectURL(blob);
+    chatHistory[otherId].push({ t:'audio', eu, url, dur:msg.dur, h });
+  }
+
+  if (!eu && (!convAtual || convAtual.id !== otherId)) {
+    if (usuarios[otherId]) {
+      usuarios[otherId]._unread = (usuarios[otherId]._unread || 0) + 1;
+      renderConvs();
+    }
+    toast('💬 ' + msg.fromName + ': ' + (msg.text || '[áudio]'));
+  }
+
+  if (convAtual && convAtual.id === otherId) renderMsgs(otherId);
+  else renderConvs();
+}
+
+function b64Blob(dataUrl, mime) {
+  const b64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+
+function playMsgAudio(url, btn) {
+  const a = new Audio(url);
+  btn.textContent = '⏸';
+  a.onended = () => btn.textContent = '▶';
+  a.play().catch(() => btn.textContent = '▶');
+}
+
+function enviarMsg() {
+  const inp = document.getElementById('chat-input');
+  const txt = inp.value.trim();
+  if (!txt || !convAtual) return;
+  enviar({ type:'chat_send', toId:convAtual.id, msgType:'text', text:txt });
+  inp.value = '';
+}
+
+function deixarRecado() {
+  if (!convAtual) return;
+  const txt = prompt('📌 Recado para ' + convAtual.name + ':');
+  if (!txt) return;
+  enviar({ type:'chat_send', toId:convAtual.id, msgType:'note', text:txt });
+}
+
+function chamarNoRadio() {
+  if (!convAtual) return;
+  toast('📡 Chamando ' + convAtual.name + ' no rádio...');
+}
+
+// PTT mini no chat
+async function pttMiniOn(e) {
+  if (e) e.preventDefault();
+  if (!convAtual || miniStream) return;
+  document.getElementById('ptt-mini').classList.add('on');
+  try { miniStream = await navigator.mediaDevices.getUserMedia({audio:true}); } catch { return; }
+  const mt = getMime();
+  miniRecorder = new MediaRecorder(miniStream, mt ? {mimeType:mt} : {});
+  miniChunks = [];
+  miniRecorder.ondataavailable = ev => { if (ev.data.size > 0) miniChunks.push(ev.data); };
+  miniRecorder.start();
+}
+
+function pttMiniOff() {
+  document.getElementById('ptt-mini').classList.remove('on');
+  if (!miniRecorder || miniRecorder.state === 'inactive') return;
+  miniRecorder.onstop = () => {
+    const blob = new Blob(miniChunks, { type: miniRecorder.mimeType || 'audio/webm' });
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (convAtual && ws && ws.readyState === 1) {
+        enviar({ type:'chat_send', toId:convAtual.id, msgType:'audio',
+          audioBase64:reader.result, mimeType:blob.type, dur:'?' });
+      }
+    };
+    reader.readAsDataURL(blob);
+    miniStream.getTracks().forEach(t => t.stop());
+    miniStream = null; miniChunks = [];
+  };
+  miniRecorder.stop();
+}
+
+// ── RELÓGIO ──
+function atualizarRelogio() {
+  const n = new Date();
+  const t = `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+  document.getElementById('relogio').textContent = t;
+}
+setInterval(atualizarRelogio, 10000);
+
+// ── TOAST ──
+let toastTimer = null;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
