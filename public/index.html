@@ -222,38 +222,20 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
   </div>
   <div class="login-form">
     <div>
-      <div class="field-label">Seu nome</div>
-      <input type="text" id="inp-nome" placeholder="Ex: Ana Paula" maxlength="30"/>
+      <div class="field-label">Login</div>
+      <input type="text" id="inp-login" placeholder="Ex: ana.paula" autocomplete="username"
+        onkeydown="if(event.key==='Enter')document.getElementById('inp-senha').focus()"/>
     </div>
     <div>
-      <div class="field-label">Unidade</div>
-      <div class="unid-grid">
-        <div class="unid-btn sel" data-unid="Centro" onclick="selUnid(this)"><span class="ui">🏫</span><span class="un">Centro</span></div>
-        <div class="unid-btn" data-unid="Corujinha" onclick="selUnid(this)"><span class="ui">🦉</span><span class="un">Corujinha</span></div>
-        <div class="unid-btn" data-unid="Laranjal" onclick="selUnid(this)"><span class="ui">🌳</span><span class="un">Laranjal</span></div>
-      </div>
+      <div class="field-label">Senha</div>
+      <input type="password" id="inp-senha" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')entrar()"/>
     </div>
-    <div>
-      <div class="field-label">Seu perfil</div>
-      <div class="perfil-grid">
-        <div class="perfil-btn sel" data-perfil="professor" style="--cor:#66bb6a" onclick="selPerfil(this)">
-          <span class="pi">📚</span><div class="pt"><span class="pn">Professor</span><span class="pd">Envia chamados</span></div>
-        </div>
-        <div class="perfil-btn" data-perfil="monitor" style="--cor:#26C6DA" onclick="selPerfil(this)">
-          <span class="pi">🙋</span><div class="pt"><span class="pn">Monitor</span><span class="pd">Acompanhamento</span></div>
-        </div>
-        <div class="perfil-btn" data-perfil="manutencao" style="--cor:#ab47bc" onclick="selPerfil(this)">
-          <span class="pi">🔧</span><div class="pt"><span class="pn">Manutenção</span><span class="pd">Chamados técnicos</span></div>
-        </div>
-        <div class="perfil-btn" data-perfil="funcionario" style="--cor:#ffa726" onclick="selPerfil(this)">
-          <span class="pi">👷</span><div class="pt"><span class="pn">Funcionário</span><span class="pd">PTT geral</span></div>
-        </div>
-        <div class="perfil-btn" data-perfil="direcao" style="--cor:#ef5350" onclick="selPerfil(this)">
-          <span class="pi">🏛️</span><div class="pt"><span class="pn">Direção</span><span class="pd">Acesso total</span></div>
-        </div>
-      </div>
+    <div id="login-erro" style="font-size:.72rem;color:#ef5350;text-align:center;min-height:1.1em;"></div>
+    <button class="btn-entrar" id="btn-entrar" onclick="entrar()">Entrar no sistema</button>
+    <div style="text-align:center;margin-top:4px;">
+      <a href="/admin.html" style="font-size:.6rem;color:var(--muted);text-decoration:none;letter-spacing:.05em;">⚙️ Painel Admin</a>
     </div>
-    <button class="btn-entrar" onclick="entrar()">Entrar no sistema</button>
   </div>
 </div>
 
@@ -454,7 +436,6 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
 // ── ESTADO GLOBAL ──
 let ws = null;
 let myId = null, myName = '', myUnit = 'Centro', myProfile = 'professor';
-let unidSel = 'Centro', perfilSel = 'professor';
 let currentChannel = 'Canal Geral';
 let usuarios = {};       // id → {id, name, profile, channel}
 let chamadosPend = {};   // id → chamado
@@ -483,24 +464,39 @@ const PERFIS = {
 };
 
 // ── LOGIN ──
-function selUnid(el) {
-  document.querySelectorAll('.unid-btn').forEach(b => b.classList.remove('sel'));
-  el.classList.add('sel');
-  unidSel = el.dataset.unid;
+async function entrar() {
+  const login = document.getElementById('inp-login').value.trim();
+  const senha = document.getElementById('inp-senha').value;
+  const erro = document.getElementById('login-erro');
+  const btn = document.getElementById('btn-entrar');
+  erro.textContent = '';
+  if (!login || !senha) { erro.textContent = 'Preencha login e senha'; return; }
+
+  btn.textContent = 'Entrando...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ login, senha }),
+    });
+    const data = await res.json();
+    if (!res.ok) { erro.textContent = data.erro || 'Erro ao entrar'; return; }
+    localStorage.setItem('sci_token', data.token);
+    localStorage.setItem('sci_user', JSON.stringify(data.usuario));
+    iniciarApp(data.usuario);
+  } catch {
+    erro.textContent = 'Erro de conexão com o servidor';
+  } finally {
+    btn.textContent = 'Entrar no sistema';
+    btn.disabled = false;
+  }
 }
 
-function selPerfil(el) {
-  document.querySelectorAll('.perfil-btn').forEach(b => b.classList.remove('sel'));
-  el.classList.add('sel');
-  perfilSel = el.dataset.perfil;
-}
-
-function entrar() {
-  const nome = document.getElementById('inp-nome').value.trim();
-  if (!nome) { toast('Digite seu nome para entrar'); return; }
-  myName = nome;
-  myUnit = unidSel;
-  myProfile = perfilSel;
+function iniciarApp(usuario) {
+  myName = usuario.nome;
+  myUnit = usuario.unidade;
+  myProfile = usuario.perfil;
   const ini = myName.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
   const p = PERFIS[myProfile];
 
@@ -524,9 +520,8 @@ function entrar() {
   }
 
   document.getElementById('tela-login').style.display = 'none';
-  const app = document.getElementById('app');
-  app.style.cssText = 'display:flex;flex-direction:column;align-items:center;width:100%';
-
+  const appEl = document.getElementById('app');
+  appEl.style.cssText = 'display:flex;flex-direction:column;align-items:center;width:100%';
   atualizarRelogio();
   conectarWS();
 }
@@ -534,9 +529,27 @@ function entrar() {
 function voltarLogin() {
   pararPTT();
   if (ws) { ws.onclose = null; ws.close(); ws = null; }
+  localStorage.removeItem('sci_token');
+  localStorage.removeItem('sci_user');
   document.getElementById('tela-login').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
 }
+
+// Auto-login se tiver token salvo
+window.addEventListener('load', async () => {
+  const token = localStorage.getItem('sci_token');
+  if (!token) return;
+  try {
+    const res = await fetch('/api/me', { headers: { Authorization: 'Bearer ' + token } });
+    if (res.ok) {
+      const user = JSON.parse(localStorage.getItem('sci_user'));
+      iniciarApp(user);
+    } else {
+      localStorage.removeItem('sci_token');
+      localStorage.removeItem('sci_user');
+    }
+  } catch {}
+});
 
 // ── WEBSOCKET ──
 function conectarWS() {
@@ -545,7 +558,7 @@ function conectarWS() {
   ws.binaryType = 'arraybuffer';
 
   ws.onopen = () => {
-    ws.send(JSON.stringify({ type:'login', name:myName, unit:myUnit, profile:myProfile }));
+    ws.send(JSON.stringify({ type:'auth', token: localStorage.getItem('sci_token') }));
   };
 
   ws.onmessage = (ev) => {
@@ -571,6 +584,9 @@ function handleMsg(msg) {
     case 'welcome':
       myId = msg.id;
       atualizarUsuarios(msg.users, msg.channelCounts, msg.onlineCount);
+      break;
+    case 'auth_error':
+      voltarLogin();
       break;
     case 'users_update':
       atualizarUsuarios(msg.users, msg.channelCounts, msg.onlineCount);

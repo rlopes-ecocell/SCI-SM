@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · SCI Santa Mônica</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+:root{
+  --am:#f5c800; --bg:#f5f5f5; --surface:#fff; --borda:#ddd;
+  --txt:#1a1a1a; --muted:#888; --card:#f0f0f0;
+  --green:#66bb6a; --red:#ef5350; --blue:#2196F3;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+
+/* HEADER */
+header{background:var(--surface);border-bottom:3px solid var(--am);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.hdr-logo{display:flex;align-items:center;gap:10px;}
+.hdr-logo .ic{font-size:1.3rem;}
+.hdr-logo .titulo{font-size:.85rem;font-weight:900;color:var(--am);text-transform:uppercase;letter-spacing:.04em;}
+.hdr-logo .sub{font-size:.58rem;color:var(--muted);letter-spacing:.1em;}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+.hdr-user{font-size:.7rem;font-weight:700;color:var(--muted);}
+.btn-logout{background:none;border:1px solid var(--borda);border-radius:8px;padding:5px 12px;font-family:'Montserrat',sans-serif;font-size:.65rem;font-weight:700;color:var(--muted);cursor:pointer;}
+.btn-logout:hover{border-color:var(--red);color:var(--red);}
+
+/* LOGIN ADMIN */
+#tela-login{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;}
+.login-box{background:var(--surface);border-radius:16px;padding:32px 28px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:14px;box-shadow:0 4px 24px rgba(0,0,0,.08);}
+.login-box h1{font-size:1rem;font-weight:900;color:var(--am);text-transform:uppercase;letter-spacing:.06em;text-align:center;}
+.login-box p{font-size:.68rem;color:var(--muted);text-align:center;margin-top:-6px;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);}
+.field input{background:var(--card);border:1px solid var(--borda);border-radius:8px;padding:10px 12px;font-family:'Montserrat',sans-serif;font-size:.84rem;font-weight:600;color:var(--txt);outline:none;transition:border-color .15s;}
+.field input:focus{border-color:var(--am);}
+.btn-primary{width:100%;padding:11px;border-radius:10px;border:none;background:var(--am);color:#1a1a1a;font-family:'Montserrat',sans-serif;font-size:.82rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;transition:opacity .15s;}
+.btn-primary:hover{opacity:.9;}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+.erro-msg{font-size:.68rem;color:var(--red);text-align:center;min-height:1em;}
+
+/* CONTEÚDO */
+#app{display:none;padding:20px;max-width:900px;margin:0 auto;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:2px solid var(--borda);padding-bottom:0;}
+.tab{padding:8px 18px;font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;}
+.tab.ativo{color:var(--am);border-bottom-color:var(--am);}
+
+/* SEÇÃO */
+.secao{display:none;}
+.secao.ativa{display:block;}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.toolbar h2{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+.btn-novo{background:var(--am);border:none;border-radius:8px;padding:8px 16px;font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:800;color:#1a1a1a;cursor:pointer;transition:opacity .15s;}
+.btn-novo:hover{opacity:.9;}
+
+/* TABELA */
+.tabela-wrap{background:var(--surface);border:1px solid var(--borda);border-radius:12px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;}
+th{background:var(--card);font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:10px 14px;text-align:left;border-bottom:1px solid var(--borda);}
+td{padding:10px 14px;font-size:.75rem;border-bottom:1px solid var(--borda);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:color-mix(in srgb,var(--am) 4%,var(--surface));}
+.badge{display:inline-block;border-radius:6px;padding:2px 8px;font-size:.6rem;font-weight:800;text-transform:uppercase;}
+.badge-ativo{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);}
+.badge-inativo{background:color-mix(in srgb,var(--red) 12%,transparent);color:var(--red);}
+.perfil-tag{display:inline-block;border-radius:6px;padding:2px 8px;font-size:.6rem;font-weight:700;}
+.acoes{display:flex;gap:6px;}
+.btn-edit{background:none;border:1px solid var(--borda);border-radius:6px;padding:4px 10px;font-family:'Montserrat',sans-serif;font-size:.62rem;font-weight:700;cursor:pointer;color:var(--txt);}
+.btn-edit:hover{border-color:var(--blue);color:var(--blue);}
+.btn-toggle{background:none;border:1px solid var(--borda);border-radius:6px;padding:4px 10px;font-family:'Montserrat',sans-serif;font-size:.62rem;font-weight:700;cursor:pointer;color:var(--muted);}
+.btn-toggle:hover{border-color:var(--red);color:var(--red);}
+.empty{padding:30px;text-align:center;font-size:.75rem;color:var(--muted);}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.aberto{display:flex;}
+.modal{background:var(--surface);border-radius:16px;padding:24px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:14px;max-height:90vh;overflow-y:auto;}
+.modal h3{font-size:.85rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--am);}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.modal-acoes{display:flex;gap:8px;justify-content:flex-end;margin-top:4px;}
+.btn-cancel{background:none;border:1px solid var(--borda);border-radius:8px;padding:8px 16px;font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);cursor:pointer;}
+select{background:var(--card);border:1px solid var(--borda);border-radius:8px;padding:10px 12px;font-family:'Montserrat',sans-serif;font-size:.82rem;font-weight:600;color:var(--txt);outline:none;width:100%;cursor:pointer;}
+select:focus{border-color:var(--am);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:.72rem;font-weight:700;padding:8px 18px;border-radius:20px;z-index:300;opacity:0;transition:opacity .2s;pointer-events:none;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<div id="tela-login">
+  <div class="login-box">
+    <h1>📡 SCI Admin</h1>
+    <p>Acesso restrito à direção</p>
+    <div class="field">
+      <label>Login</label>
+      <input type="text" id="inp-login" placeholder="Ex: direcao" autocomplete="username"
+        onkeydown="if(event.key==='Enter')document.getElementById('inp-senha').focus()"/>
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" id="inp-senha" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')fazerLogin()"/>
+    </div>
+    <div class="erro-msg" id="login-erro"></div>
+    <button class="btn-primary" id="btn-login" onclick="fazerLogin()">Entrar</button>
+  </div>
+</div>
+
+<header id="hdr" style="display:none">
+  <div class="hdr-logo">
+    <span class="ic">📡</span>
+    <div>
+      <div class="titulo">SCI Admin</div>
+      <div class="sub">ESCOLA SANTA MÔNICA</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <span class="hdr-user" id="hdr-user"></span>
+    <button class="btn-logout" onclick="logout()">Sair</button>
+  </div>
+</header>
+
+<div id="app">
+  <div class="tabs">
+    <button class="tab ativo" onclick="trocarTab('usuarios',this)">👥 Usuários</button>
+    <button class="tab" onclick="trocarTab('chamados',this)">🔔 Chamados</button>
+    <button class="tab" onclick="trocarTab('mensagens',this)">💬 Mensagens</button>
+    <button class="tab" onclick="trocarTab('setup',this)">⚙️ Setup</button>
+  </div>
+
+  <!-- USUÁRIOS -->
+  <div class="secao ativa" id="sec-usuarios">
+    <div class="toolbar">
+      <h2>Usuários cadastrados</h2>
+      <button class="btn-novo" onclick="abrirModal()">+ Novo usuário</button>
+    </div>
+    <div class="tabela-wrap">
+      <table>
+        <thead><tr>
+          <th>Nome</th><th>Login</th><th>Unidade</th><th>Perfil</th>
+          <th>Status</th><th>Último acesso</th><th>Ações</th>
+        </tr></thead>
+        <tbody id="tbody-usuarios"><tr><td colspan="7" class="empty">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CHAMADOS -->
+  <div class="secao" id="sec-chamados">
+    <div class="toolbar"><h2>Histórico de chamados</h2></div>
+    <div class="tabela-wrap">
+      <table>
+        <thead><tr>
+          <th>Tipo</th><th>De</th><th>Unidade</th><th>Status</th><th>Aceito por</th><th>Data</th>
+        </tr></thead>
+        <tbody id="tbody-chamados"><tr><td colspan="6" class="empty">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MENSAGENS -->
+  <div class="secao" id="sec-mensagens">
+    <div class="toolbar"><h2>Histórico de mensagens</h2></div>
+    <div class="tabela-wrap">
+      <table>
+        <thead><tr>
+          <th>De</th><th>Para</th><th>Tipo</th><th>Mensagem</th><th>Data</th>
+        </tr></thead>
+        <tbody id="tbody-mensagens"><tr><td colspan="5" class="empty">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SETUP -->
+  <div class="secao" id="sec-setup">
+    <div class="toolbar"><h2>Configuração inicial</h2></div>
+    <div style="background:var(--surface);border:1px solid var(--borda);border-radius:12px;padding:20px;max-width:400px;">
+      <p style="font-size:.75rem;color:var(--muted);margin-bottom:16px;">
+        Use este formulário apenas para criar o primeiro usuário administrador quando o banco estiver vazio.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="field"><label>Nome completo</label><input type="text" id="setup-nome" placeholder="Ex: Diretora Solange"/></div>
+        <div class="field"><label>Login</label><input type="text" id="setup-login" placeholder="Ex: direcao"/></div>
+        <div class="field"><label>Senha</label><input type="password" id="setup-senha" placeholder="Mínimo 6 caracteres"/></div>
+        <button class="btn-primary" onclick="criarSetup()">Criar administrador</button>
+        <div class="erro-msg" id="setup-erro"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL USUÁRIO -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <h3 id="modal-titulo">Novo usuário</h3>
+    <input type="hidden" id="modal-id"/>
+    <div class="field"><label>Nome completo</label><input type="text" id="m-nome" placeholder="Ex: Ana Paula Lima"/></div>
+    <div class="modal-grid">
+      <div class="field"><label>Login</label><input type="text" id="m-login" placeholder="Ex: ana.paula"/></div>
+      <div class="field"><label>Senha <span id="m-senha-hint" style="font-weight:400;opacity:.6">(obrigatória)</span></label>
+        <input type="password" id="m-senha" placeholder="••••••••"/></div>
+    </div>
+    <div class="modal-grid">
+      <div class="field"><label>Unidade</label>
+        <select id="m-unidade">
+          <option value="Centro">🏫 Centro</option>
+          <option value="Corujinha">🦉 Corujinha</option>
+          <option value="Laranjal">🌳 Laranjal</option>
+        </select>
+      </div>
+      <div class="field"><label>Perfil</label>
+        <select id="m-perfil">
+          <option value="professor">📚 Professor</option>
+          <option value="monitor">🙋 Monitor</option>
+          <option value="manutencao">🔧 Manutenção</option>
+          <option value="funcionario">👷 Funcionário</option>
+          <option value="direcao">🏛️ Direção</option>
+        </select>
+      </div>
+    </div>
+    <div class="erro-msg" id="modal-erro"></div>
+    <div class="modal-acoes">
+      <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-primary" style="width:auto;padding:8px 20px" onclick="salvarUsuario()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let token = null;
+let adminUser = null;
+let editandoId = null;
+
+// ── AUTH ──
+async function fazerLogin() {
+  const login = document.getElementById('inp-login').value.trim();
+  const senha = document.getElementById('inp-senha').value;
+  const erro = document.getElementById('login-erro');
+  const btn = document.getElementById('btn-login');
+  erro.textContent = '';
+  if (!login || !senha) { erro.textContent = 'Preencha login e senha'; return; }
+
+  btn.textContent = 'Entrando...'; btn.disabled = true;
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({login, senha}),
+    });
+    const data = await res.json();
+    if (!res.ok) { erro.textContent = data.erro || 'Erro ao entrar'; return; }
+    if (data.usuario.perfil !== 'direcao') { erro.textContent = 'Acesso restrito à direção'; return; }
+    token = data.token;
+    adminUser = data.usuario;
+    localStorage.setItem('sci_admin_token', token);
+    localStorage.setItem('sci_admin_user', JSON.stringify(adminUser));
+    mostrarApp();
+  } catch {
+    erro.textContent = 'Erro de conexão';
+  } finally {
+    btn.textContent = 'Entrar'; btn.disabled = false;
+  }
+}
+
+function mostrarApp() {
+  document.getElementById('tela-login').style.display = 'none';
+  document.getElementById('hdr').style.display = 'flex';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('hdr-user').textContent = adminUser.nome;
+  carregarUsuarios();
+}
+
+function logout() {
+  localStorage.removeItem('sci_admin_token');
+  localStorage.removeItem('sci_admin_user');
+  token = null; adminUser = null;
+  document.getElementById('tela-login').style.display = 'flex';
+  document.getElementById('hdr').style.display = 'none';
+  document.getElementById('app').style.display = 'none';
+}
+
+async function api(path, method='GET', body=null) {
+  const opts = { method, headers: { Authorization: 'Bearer '+token, 'Content-Type':'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.erro || 'Erro na requisição');
+  return data;
+}
+
+// ── TABS ──
+function trocarTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
+  document.getElementById('sec-'+id).classList.add('ativa');
+  if (id === 'usuarios') carregarUsuarios();
+  if (id === 'chamados') carregarChamados();
+  if (id === 'mensagens') carregarMensagens();
+}
+
+// ── USUÁRIOS ──
+const PERFIL_COR = {
+  professor:'#66bb6a', monitor:'#26C6DA', manutencao:'#ab47bc',
+  funcionario:'#ffa726', direcao:'#ef5350'
+};
+const PERFIL_LABEL = {
+  professor:'📚 Professor', monitor:'🙋 Monitor', manutencao:'🔧 Manutenção',
+  funcionario:'👷 Funcionário', direcao:'🏛️ Direção'
+};
+
+async function carregarUsuarios() {
+  const tbody = document.getElementById('tbody-usuarios');
+  try {
+    const usuarios = await api('/api/admin/usuarios');
+    if (!usuarios.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="empty">Nenhum usuário cadastrado</td></tr>';
+      return;
+    }
+    tbody.innerHTML = usuarios.map(u => {
+      const cor = PERFIL_COR[u.perfil] || '#888';
+      const acesso = u.ultimo_acesso
+        ? new Date(u.ultimo_acesso).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+        : '—';
+      return `<tr>
+        <td><strong>${u.nome}</strong></td>
+        <td style="font-family:monospace;font-size:.72rem">${u.login}</td>
+        <td>${u.unidade}</td>
+        <td><span class="perfil-tag" style="background:color-mix(in srgb,${cor} 15%,transparent);color:${cor}">${PERFIL_LABEL[u.perfil]||u.perfil}</span></td>
+        <td><span class="badge ${u.ativo?'badge-ativo':'badge-inativo'}">${u.ativo?'Ativo':'Inativo'}</span></td>
+        <td style="font-size:.68rem;color:var(--muted)">${acesso}</td>
+        <td><div class="acoes">
+          <button class="btn-edit" onclick="editarUsuario(${JSON.stringify(u).replace(/"/g,'&quot;')})">Editar</button>
+          <button class="btn-toggle" onclick="toggleAtivo('${u.id}',${u.ativo})">${u.ativo?'Desativar':'Ativar'}</button>
+        </div></td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty">${e.message}</td></tr>`;
+  }
+}
+
+function abrirModal(usuario=null) {
+  editandoId = null;
+  document.getElementById('modal-titulo').textContent = 'Novo usuário';
+  document.getElementById('modal-id').value = '';
+  document.getElementById('m-nome').value = '';
+  document.getElementById('m-login').value = '';
+  document.getElementById('m-senha').value = '';
+  document.getElementById('m-login').disabled = false;
+  document.getElementById('m-senha-hint').textContent = '(obrigatória)';
+  document.getElementById('m-unidade').value = 'Centro';
+  document.getElementById('m-perfil').value = 'professor';
+  document.getElementById('modal-erro').textContent = '';
+  document.getElementById('modal-bg').classList.add('aberto');
+}
+
+function editarUsuario(u) {
+  editandoId = u.id;
+  document.getElementById('modal-titulo').textContent = 'Editar usuário';
+  document.getElementById('m-nome').value = u.nome;
+  document.getElementById('m-login').value = u.login;
+  document.getElementById('m-login').disabled = true;
+  document.getElementById('m-senha').value = '';
+  document.getElementById('m-senha-hint').textContent = '(deixe em branco para não alterar)';
+  document.getElementById('m-unidade').value = u.unidade;
+  document.getElementById('m-perfil').value = u.perfil;
+  document.getElementById('modal-erro').textContent = '';
+  document.getElementById('modal-bg').classList.add('aberto');
+}
+
+function fecharModal() {
+  document.getElementById('modal-bg').classList.remove('aberto');
+}
+
+async function salvarUsuario() {
+  const nome = document.getElementById('m-nome').value.trim();
+  const login = document.getElementById('m-login').value.trim();
+  const senha = document.getElementById('m-senha').value;
+  const unidade = document.getElementById('m-unidade').value;
+  const perfil = document.getElementById('m-perfil').value;
+  const erroEl = document.getElementById('modal-erro');
+  erroEl.textContent = '';
+
+  if (!nome) { erroEl.textContent = 'Nome obrigatório'; return; }
+  if (!editandoId && (!login || !senha)) { erroEl.textContent = 'Login e senha obrigatórios'; return; }
+
+  try {
+    if (editandoId) {
+      const body = { nome, unidade, perfil };
+      if (senha) body.senha = senha;
+      await api('/api/admin/usuarios/'+editandoId, 'PUT', body);
+      toast('Usuário atualizado!');
+    } else {
+      await api('/api/admin/usuarios', 'POST', { nome, login, senha, unidade, perfil });
+      toast('Usuário criado!');
+    }
+    fecharModal();
+    carregarUsuarios();
+  } catch(e) {
+    erroEl.textContent = e.message;
+  }
+}
+
+async function toggleAtivo(id, atual) {
+  if (!confirm(atual ? 'Desativar este usuário?' : 'Reativar este usuário?')) return;
+  try {
+    await api('/api/admin/usuarios/'+id, 'PUT', { ativo: !atual });
+    toast(atual ? 'Usuário desativado' : 'Usuário reativado');
+    carregarUsuarios();
+  } catch(e) {
+    toast(e.message);
+  }
+}
+
+// ── CHAMADOS ──
+async function carregarChamados() {
+  const tbody = document.getElementById('tbody-chamados');
+  try {
+    const lista = await api('/api/admin/chamados');
+    if (!lista.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">Nenhum chamado</td></tr>'; return; }
+    tbody.innerHTML = lista.map(c => {
+      const data = new Date(c.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+      const statusCor = c.status==='aceito'?'var(--green)':c.status==='recusado'?'var(--red)':'var(--am)';
+      return `<tr>
+        <td>${c.icon||''} ${c.titulo}</td>
+        <td>${c.de_nome}</td>
+        <td>${c.unidade}</td>
+        <td><span style="color:${statusCor};font-weight:700;font-size:.68rem;text-transform:uppercase">${c.status}</span></td>
+        <td style="font-size:.7rem">${c.aceito_por_nome||'—'}</td>
+        <td style="font-size:.68rem;color:var(--muted)">${data}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">${e.message}</td></tr>`;
+  }
+}
+
+// ── MENSAGENS ──
+async function carregarMensagens() {
+  const tbody = document.getElementById('tbody-mensagens');
+  try {
+    const lista = await api('/api/admin/mensagens');
+    if (!lista.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Nenhuma mensagem</td></tr>'; return; }
+    tbody.innerHTML = lista.map(m => {
+      const data = new Date(m.criada_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+      return `<tr>
+        <td>${m.de_nome}</td>
+        <td style="font-size:.68rem;color:var(--muted)">${m.para_id||'—'}</td>
+        <td><span style="font-size:.65rem;text-transform:uppercase;font-weight:700;color:var(--muted)">${m.tipo}</span></td>
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.conteudo||'—'}</td>
+        <td style="font-size:.68rem;color:var(--muted)">${data}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty">${e.message}</td></tr>`;
+  }
+}
+
+// ── SETUP ──
+async function criarSetup() {
+  const nome = document.getElementById('setup-nome').value.trim();
+  const login = document.getElementById('setup-login').value.trim();
+  const senha = document.getElementById('setup-senha').value;
+  const erroEl = document.getElementById('setup-erro');
+  erroEl.textContent = '';
+  if (!nome||!login||!senha) { erroEl.textContent = 'Preencha todos os campos'; return; }
+  if (senha.length < 6) { erroEl.textContent = 'Senha mínima: 6 caracteres'; return; }
+  try {
+    const res = await fetch('/api/setup', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({nome, login, senha}),
+    });
+    const data = await res.json();
+    if (!res.ok) { erroEl.textContent = data.erro; return; }
+    toast('Administrador criado! Faça login.');
+    document.getElementById('setup-nome').value = '';
+    document.getElementById('setup-login').value = '';
+    document.getElementById('setup-senha').value = '';
+  } catch {
+    erroEl.textContent = 'Erro de conexão';
+  }
+}
+
+// ── TOAST ──
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── INIT ──
+window.addEventListener('load', async () => {
+  const t = localStorage.getItem('sci_admin_token');
+  const u = localStorage.getItem('sci_admin_user');
+  if (!t || !u) return;
+  try {
+    const res = await fetch('/api/me', { headers: { Authorization: 'Bearer '+t } });
+    if (res.ok) {
+      const me = await res.json();
+      if (me.perfil === 'direcao') {
+        token = t;
+        adminUser = JSON.parse(u);
+        mostrarApp();
+      }
+    }
+  } catch {}
+});
+</script>
+</body>
+</html>
