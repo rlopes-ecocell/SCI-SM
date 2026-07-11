@@ -486,6 +486,10 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
     <div id="chamados-empty" style="padding:20px;text-align:center;font-size:.72rem;color:#aaa;">
       Nenhum chamado pendente
     </div>
+    <div id="grupo-enviados" style="display:none;flex-direction:column;gap:8px;">
+      <div class="sec">📤 Meus chamados</div>
+      <div id="lista-enviados" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
     <div id="grupo-monitor" style="display:none;flex-direction:column;gap:8px;">
       <div class="sec">🙋 Monitores</div>
       <div id="lista-monitor" style="display:flex;flex-direction:column;gap:8px;"></div>
@@ -577,7 +581,7 @@ let recognition = null, currentTranscript = '';
 let miniStream = null, miniRecorder = null, miniChunks = [];
 
 const PERFIS = {
-  professor:   {label:'📚 Professor',  cor:'#66bb6a', showPTT:true,  showChamados:true,  tabLabel:'🔔 Solicitar'},
+  professor:   {label:'📚 Professor',  cor:'#66bb6a', showPTT:true,  showChamados:true,  tabLabel:'🔔 Chamados'},
   monitor:     {label:'🙋 Monitor',    cor:'#26C6DA', showPTT:true,  showChamados:true,  tabLabel:'🔔 Chamados'},
   manutencao:  {label:'🔧 Manutenção', cor:'#ab47bc', showPTT:true,  showChamados:true,  tabLabel:'🔧 Técnicos'},
   funcionario: {label:'👷 Funcionário',cor:'#ffa726', showPTT:true,  showChamados:false, tabLabel:''},
@@ -994,36 +998,67 @@ function enviarChamado(targetProfile, icon, titulo) {
     toast('Já há um chamado "' + titulo + '" em aberto');
     return;
   }
-  const sfx = PERFIL_SFX[myProfile] || '';
-  const sc = document.getElementById('status-chamado' + sfx);
-  document.getElementById('sc-icon' + sfx).textContent = icon;
-  document.getElementById('sc-titulo' + sfx).textContent = titulo + ' — enviado!';
-  document.getElementById('sc-desc' + sfx).textContent = '⏳ Aguardando confirmação...';
-  sc.style.cssText += ';display:flex;border-color:#ffa726;background:#fff8e1';
+
+  // cria card na aba Chamados
+  document.getElementById('chamados-empty').style.display = 'none';
+  const grupoEnv = document.getElementById('grupo-enviados');
+  const listaEnv = document.getElementById('lista-enviados');
+  grupoEnv.style.display = 'flex';
+
+  const cardId = 'env-' + Date.now();
+  const card = document.createElement('div');
+  card.className = 'chamado-card';
+  card.id = cardId;
+  card.innerHTML = `
+    <div class="chamado-card-topo">
+      <div class="cc-ic" style="background:#fff8e1">${icon}</div>
+      <div class="cc-body">
+        <div class="cc-titulo">${titulo}</div>
+        <div class="cc-meta" id="${cardId}-meta"><div class="cc-dot" style="background:#ffa726"></div>⏳ Aguardando confirmação...</div>
+      </div>
+    </div>
+    <div class="cc-acoes" id="${cardId}-acoes">
+      <button class="btn-recusar" onclick="cancelarChamadoCard('${cardId}','${titulo}')">Cancelar</button>
+    </div>`;
+  listaEnv.prepend(card);
+
+  // vai para aba Chamados
+  trocarTab('chamados', document.getElementById('tab-chamados'));
 
   const timer = setTimeout(() => {
     if (!pendingChamados[titulo]) return;
-    document.getElementById('sc-desc' + sfx).textContent = 'Ninguém disponível no momento.';
-    document.getElementById('status-chamado' + sfx).style.cssText += ';border-color:#ef5350;background:#ffebee';
+    const meta = document.getElementById(cardId + '-meta');
+    if (meta) meta.innerHTML = '<div class="cc-dot" style="background:#ef5350"></div>Ninguém disponível no momento.';
+    const acoes = document.getElementById(cardId + '-acoes');
+    if (acoes) acoes.innerHTML = '';
     delete pendingChamados[titulo];
+    setTimeout(() => { document.getElementById(cardId)?.remove(); verificarGrupoEnviados(); }, 5000);
   }, 30000);
 
-  pendingChamados[titulo] = { id: null, timer, sfx };
+  pendingChamados[titulo] = { id: null, timer, cardId };
   enviar({ type:'chamado_send', targetProfile, icon, titulo, descricao: myName });
 }
 
-function cancelarChamado() { cancelarChamadoPerfil(''); }
-function cancelarChamadoDir() { cancelarChamadoPerfil('-dir'); }
-function cancelarChamadoPerfil(sfx) {
-  for (const [titulo, info] of Object.entries(pendingChamados)) {
-    if (info.sfx === sfx) {
-      clearTimeout(info.timer);
-      delete pendingChamados[titulo];
-    }
-  }
-  const el = document.getElementById('status-chamado' + sfx);
-  if (el) el.style.display = 'none';
+function cancelarChamadoCard(cardId, titulo) {
+  const info = pendingChamados[titulo];
+  if (info) { clearTimeout(info.timer); delete pendingChamados[titulo]; }
+  document.getElementById(cardId)?.remove();
+  verificarGrupoEnviados();
 }
+
+function verificarGrupoEnviados() {
+  const lista = document.getElementById('lista-enviados');
+  if (!lista.children.length) {
+    document.getElementById('grupo-enviados').style.display = 'none';
+    const temOutros = ['lista-monitor','lista-manutencao','lista-direcao','lista-outros']
+      .some(id => document.getElementById(id)?.children.length > 0);
+    if (!temOutros) document.getElementById('chamados-empty').style.display = '';
+  }
+}
+
+function cancelarChamado() {}
+function cancelarChamadoDir() {}
+function cancelarChamadoPerfil() {}
 
 function onChamadoSent(msg) {
   for (const [titulo, info] of Object.entries(pendingChamados)) {
@@ -1038,30 +1073,39 @@ function onChamadoSent(msg) {
 function onChamadoAccepted(msg) {
   const titulo = chamadoIdMap[msg.chamadoId];
   if (!titulo || !pendingChamados[titulo]) return;
-  const { timer, sfx } = pendingChamados[titulo];
+  const { timer, cardId } = pendingChamados[titulo];
   clearTimeout(timer);
   delete pendingChamados[titulo];
   delete chamadoIdMap[msg.chamadoId];
-  const sc = document.getElementById('status-chamado' + sfx);
-  if (sc) {
-    document.getElementById('sc-titulo' + sfx).textContent = '✓ Chamado aceito!';
-    document.getElementById('sc-desc' + sfx).textContent = msg.byName + ' está a caminho.';
-    sc.style.cssText += ';border-color:#66bb6a;background:#f1f8e9';
+  const card = document.getElementById(cardId);
+  if (card) {
+    card.style.cssText += ';border-color:#66bb6a;background:#f1f8e9';
+    const meta = document.getElementById(cardId + '-meta');
+    if (meta) meta.innerHTML = `<div class="cc-dot" style="background:#66bb6a"></div>✓ ${msg.byName} está a caminho.`;
+    const acoes = document.getElementById(cardId + '-acoes');
+    if (acoes) acoes.innerHTML = '';
+    setTimeout(() => { card.remove(); verificarGrupoEnviados(); }, 8000);
   }
+  atualizarNotifChamados();
 }
 
 function onChamadoRejected(msg) {
   const titulo = chamadoIdMap[msg.chamadoId];
   if (!titulo || !pendingChamados[titulo]) return;
-  const { timer, sfx } = pendingChamados[titulo];
+  const { timer, cardId } = pendingChamados[titulo];
   clearTimeout(timer);
   delete pendingChamados[titulo];
   delete chamadoIdMap[msg.chamadoId];
-  const el = document.getElementById('status-chamado' + sfx);
-  if (el) {
-    document.getElementById('sc-desc' + sfx).textContent = 'Chamado recusado. Tente novamente.';
-    el.style.cssText += ';border-color:#ef5350;background:#ffebee';
+  const card = document.getElementById(cardId);
+  if (card) {
+    card.style.cssText += ';border-color:#ef5350;background:#ffebee';
+    const meta = document.getElementById(cardId + '-meta');
+    if (meta) meta.innerHTML = '<div class="cc-dot" style="background:#ef5350"></div>Chamado recusado.';
+    const acoes = document.getElementById(cardId + '-acoes');
+    if (acoes) acoes.innerHTML = '';
+    setTimeout(() => { card.remove(); verificarGrupoEnviados(); }, 5000);
   }
+  atualizarNotifChamados();
 }
 
 // ── CHAMADOS (MONITOR/MANUTENÇÃO RECEBE) ──
