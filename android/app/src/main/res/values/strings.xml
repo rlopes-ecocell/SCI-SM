@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SCI Santa Mônica</string>
+    <string name="title_activity_main">SCI Santa Mônica</string>
+    <string name="package_name">br.com.escolasantamonica.sci</string>
+    <string name="custom_url_scheme">br.com.escolasantamonica.sci</string>
+</resources>
