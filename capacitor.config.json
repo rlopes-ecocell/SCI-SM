@@ -1,0 +1,9 @@
+{
+  "appId": "br.com.escolasantamonica.sci",
+  "appName": "SCI Santa Mônica",
+  "webDir": "public",
+  "server": {
+    "url": "https://sciescolasantamonica.squareweb.app",
+    "cleartext": false
+  }
+}

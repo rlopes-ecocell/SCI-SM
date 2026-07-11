@@ -235,7 +235,7 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
 <!-- LOGIN -->
 <div id="tela-login">
   <div class="login-logo">
-    <div style="font-size:2.5rem;">📡</div>
+    <img src="/logo.jpg" style="width:80px;height:80px;object-fit:contain;" alt="Logo Santa Mônica">
     <div class="titulo">Santa Mônica</div>
     <div class="sub">● SISTEMA DE COMUNICAÇÃO INTERNO</div>
   </div>
@@ -262,7 +262,7 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
 <div id="app">
   <header>
     <div class="logo-area">
-      <div class="logo-ic">📡</div>
+      <div class="logo-ic"><img src="/logo.jpg" style="width:100%;height:100%;object-fit:contain;" alt=""></div>
       <div class="logo-text">
         <div class="escola">Escola</div>
         <div class="nome">Santa Mônica</div>
@@ -327,12 +327,12 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
         <div class="ch-nome">Direção</div>
         <div class="ch-info"><div class="ch-pip"></div><span id="ol-direcao">0</span> online</div>
       </div>
-      <div class="ch" style="--cor:#66bb6a" onclick="trocarCanal(this,'Professores','#66bb6a')">
+      <div class="ch" id="ch-professores" style="--cor:#66bb6a" onclick="trocarCanal(this,'Professores','#66bb6a')">
         <div class="ch-bdg"></div><div class="ch-icon">📚</div>
         <div class="ch-nome">Professores</div>
         <div class="ch-info"><div class="ch-pip"></div><span id="ol-prof">0</span> online</div>
       </div>
-      <div class="ch" style="--cor:#ffa726" onclick="trocarCanal(this,'Funcionários','#ffa726')">
+      <div class="ch" id="ch-funcionarios" style="--cor:#ffa726" onclick="trocarCanal(this,'Funcionários','#ffa726')">
         <div class="ch-bdg"></div><div class="ch-icon">🔧</div>
         <div class="ch-nome">Funcionários</div>
         <div class="ch-info"><div class="ch-pip"></div><span id="ol-func">0</span> online</div>
@@ -630,8 +630,10 @@ function iniciarApp(usuario) {
   document.getElementById('bloco-log').style.display = (myProfile === 'professor' || myProfile === 'direcao') ? 'none' : 'block';
 
   const semAcessoDirecao = myProfile === 'professor' || myProfile === 'funcionario';
-  const chDirecaoEl = document.getElementById('ch-direcao');
-  if (semAcessoDirecao) chDirecaoEl.style.display = 'none';
+  if (semAcessoDirecao) document.getElementById('ch-direcao').style.display = 'none';
+
+  if (myProfile === 'funcionario') document.getElementById('ch-professores').style.display = 'none';
+  if (myProfile === 'professor')   document.getElementById('ch-funcionarios').style.display = 'none';
 
   const tabC = document.getElementById('tab-chamados');
   if (!p.showChamados) {
@@ -756,7 +758,9 @@ function trocarTab(tab, btn) {
 
 // ── CANAL ──
 function trocarCanal(el, nome, cor) {
-  if (nome === 'Direção' && (myProfile === 'professor' || myProfile === 'funcionario')) return;
+  if (nome === 'Direção'     && (myProfile === 'professor' || myProfile === 'funcionario')) return;
+  if (nome === 'Professores' && myProfile === 'funcionario') return;
+  if (nome === 'Funcionários' && myProfile === 'professor')  return;
   document.querySelectorAll('.ch').forEach(c => c.classList.remove('sel'));
   el.classList.add('sel');
   currentChannel = nome;
