@@ -117,6 +117,8 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
 .ch-icon{font-size:1rem;}
 .ch-nome{font-size:.76rem;font-weight:800;text-transform:uppercase;}
 .ch-info{font-size:.63rem;color:var(--muted);display:flex;align-items:center;gap:4px;}
+.ch-users{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px;min-height:0;}
+.ch-user-chip{font-size:.58rem;font-weight:700;background:rgba(0,0,0,.07);border-radius:6px;padding:2px 6px;color:var(--txt);white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis;}
 .ch-pip{width:5px;height:5px;border-radius:50%;background:var(--cor,#999);}
 .ch-bdg{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--cor);box-shadow:0 0 6px var(--cor);display:none;}
 .ch.sel .ch-bdg{display:block;}
@@ -321,21 +323,25 @@ header{width:100%;background:var(--surface);border-bottom:3px solid var(--am);pa
         <div class="ch-bdg"></div><div class="ch-icon">📡</div>
         <div class="ch-nome">Geral</div>
         <div class="ch-info"><div class="ch-pip"></div><span id="ol-geral">0</span> online</div>
+        <div class="ch-users" id="cu-geral"></div>
       </div>
       <div class="ch" id="ch-direcao" style="--cor:#ef5350" onclick="trocarCanal(this,'Direção','#ef5350')">
         <div class="ch-bdg"></div><div class="ch-icon">🏛️</div>
         <div class="ch-nome">Direção</div>
         <div class="ch-info"><div class="ch-pip"></div><span id="ol-direcao">0</span> online</div>
+        <div class="ch-users" id="cu-direcao"></div>
       </div>
       <div class="ch" id="ch-professores" style="--cor:#66bb6a" onclick="trocarCanal(this,'Professores','#66bb6a')">
         <div class="ch-bdg"></div><div class="ch-icon">📚</div>
         <div class="ch-nome">Professores</div>
         <div class="ch-info"><div class="ch-pip"></div><span id="ol-prof">0</span> online</div>
+        <div class="ch-users" id="cu-prof"></div>
       </div>
       <div class="ch" id="ch-funcionarios" style="--cor:#ffa726" onclick="trocarCanal(this,'Funcionários','#ffa726')">
         <div class="ch-bdg"></div><div class="ch-icon">🔧</div>
         <div class="ch-nome">Funcionários</div>
         <div class="ch-info"><div class="ch-pip"></div><span id="ol-func">0</span> online</div>
+        <div class="ch-users" id="cu-func"></div>
       </div>
     </div>
 
@@ -731,10 +737,39 @@ function atualizarUsuarios(users, channelCounts, onlineCount) {
   (users || []).forEach(u => { if (u.id !== myId) usuarios[u.id] = u; });
   document.getElementById('online-count').textContent = (onlineCount || 0) + ' online';
   const cc = channelCounts || {};
-  document.getElementById('ol-geral').textContent   = cc['Canal Geral']    || cc['Geral']        || 0;
-  document.getElementById('ol-direcao').textContent = cc['Direção']         || 0;
-  document.getElementById('ol-prof').textContent    = cc['Professores']     || 0;
-  document.getElementById('ol-func').textContent    = cc['Funcionários']    || 0;
+  document.getElementById('ol-geral').textContent   = cc['Canal Geral'] || cc['Geral'] || 0;
+  document.getElementById('ol-direcao').textContent = cc['Direção']      || 0;
+  document.getElementById('ol-prof').textContent    = cc['Professores']  || 0;
+  document.getElementById('ol-func').textContent    = cc['Funcionários'] || 0;
+
+  // agrupa usuários por canal e popula os cards
+  const byChannel = {};
+  (users || []).forEach(u => {
+    if (u.id === myId) return;
+    if (!byChannel[u.channel]) byChannel[u.channel] = [];
+    byChannel[u.channel].push(u);
+  });
+  const chMap = {
+    'Canal Geral': 'cu-geral', 'Geral': 'cu-geral',
+    'Direção': 'cu-direcao', 'Professores': 'cu-prof', 'Funcionários': 'cu-func'
+  };
+  // limpa todos
+  ['cu-geral','cu-direcao','cu-prof','cu-func'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '';
+  });
+  Object.entries(byChannel).forEach(([ch, chUsers]) => {
+    const elId = chMap[ch];
+    if (!elId) return;
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const shown = chUsers.slice(0, 4);
+    const extra = chUsers.length - shown.length;
+    el.innerHTML = shown.map(u =>
+      `<span class="ch-user-chip" onclick="event.stopPropagation();abrirJanela(usuarios['${u.id}'])">${u.name.split(' ')[0]}</span>`
+    ).join('') + (extra > 0 ? `<span class="ch-user-chip">+${extra}</span>` : '');
+  });
+
   renderConvs();
 }
 
@@ -1185,6 +1220,7 @@ async function carregarHistoricoChat(userId) {
 }
 
 async function abrirJanela(u) {
+  if (!u) return;
   convAtual = u;
   if (u._unread) { u._unread = 0; renderConvs(); }
   const ini = u.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0,2);
@@ -1193,6 +1229,9 @@ async function abrirJanela(u) {
   document.getElementById('j-nome').textContent = u.name;
   document.getElementById('j-status').textContent = '● Online';
   document.getElementById('j-status').style.color = '#66bb6a';
+  // garante que a aba Chat esteja ativa
+  const tabChat = document.getElementById('tab-chat');
+  if (tabChat) trocarTab('chat', tabChat);
   const j = document.getElementById('chat-janela');
   j.style.cssText = 'display:flex;flex-direction:column';
   if (!chatHistory[u.id]) await carregarHistoricoChat(u.id);
